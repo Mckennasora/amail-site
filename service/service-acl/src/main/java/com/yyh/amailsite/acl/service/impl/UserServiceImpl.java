@@ -1,5 +1,6 @@
 package com.yyh.amailsite.acl.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import com.yyh.amailsite.acl.model.dto.UserLoginDto;
 import com.yyh.amailsite.acl.model.dto.UserRegisterDto;
 import com.yyh.amailsite.acl.model.entity.User;
@@ -81,8 +82,14 @@ public class UserServiceImpl implements UserService {
             throw new AmailException(ResultCodeEnum.FAIL, "用户不存在");
         }
 
+        String encryptionPassword = HashPasswordGenerator.encryptionPassword(
+                userLoginDto.getUsername(), userLoginDto.getPassword());
+        if (!byUsername.getPassword().equals(encryptionPassword)) {
+            throw new AmailException(ResultCodeEnum.FAIL, "用户名与密码不匹配");
+        }
+        StpUtil.login(byUsername.getUsername());
 
-        return null;
+        return getSafetyUser(byUsername);
     }
 
     private UserVo getSafetyUser(User user) {
@@ -96,6 +103,5 @@ public class UserServiceImpl implements UserService {
         userVo.setCreateTime(user.getCreateTime());
         userVo.setUpdateTime(user.getUpdateTime());
         return userVo;
-
     }
 }

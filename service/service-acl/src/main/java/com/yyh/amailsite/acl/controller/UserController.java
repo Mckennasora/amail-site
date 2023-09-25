@@ -7,7 +7,10 @@ import com.yyh.amailsite.acl.model.vo.UserVo;
 import com.yyh.amailsite.acl.service.UserService;
 import com.yyh.amailsite.common.result.Result;
 import com.yyh.amailsite.common.utils.ValidateParams;
+import org.hibernate.criterion.Order;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
@@ -24,28 +27,34 @@ public class UserController {
     public final UserService userService;
 
     @Autowired
-    public UserController(UserService userService){
+    public UserController(UserService userService) {
         this.userService = userService;
     }
 
     @GetMapping("/info/{id}")
-    public Result<UserVo> getUserInfo(@PathVariable String id){
+    public Result<UserVo> getUserInfo(@PathVariable String id) {
         UserVo userInfo = userService.getUserInfo(id);
         return Result.ok(userInfo);
     }
 
     @PostMapping("/register")
-    public Result<UserVo> userRegister(@Valid @RequestBody UserRegisterDto userRegisterDto, BindingResult bindingResult){
+    public Result<UserVo> userRegister(@Valid @RequestBody UserRegisterDto userRegisterDto, BindingResult bindingResult) {
         ValidateParams.validateRequestParams(bindingResult);
         UserVo userInfo = userService.register(userRegisterDto);
         return Result.ok(userInfo);
     }
 
     @PostMapping("/login")
-    public Result<UserVo> userLogin(@Valid @RequestBody UserLoginDto userLoginDto, BindingResult bindingResult){
+    public Result<UserVo> userLogin(@Valid @RequestBody UserLoginDto userLoginDto, BindingResult bindingResult) {
         ValidateParams.validateRequestParams(bindingResult);
         UserVo userInfo = userService.login(userLoginDto);
         return Result.ok(userInfo);
+    }
+
+    @GetMapping("/list/{page}")
+    public Result<List<UserVo>> userList(@PathVariable int page, @RequestParam(defaultValue = "10") int size) {
+
+        return null;
     }
 
 
