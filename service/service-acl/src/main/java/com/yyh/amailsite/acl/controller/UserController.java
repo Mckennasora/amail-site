@@ -8,6 +8,7 @@ import com.yyh.amailsite.acl.model.vo.UserVo;
 import com.yyh.amailsite.acl.service.UserService;
 import com.yyh.amailsite.common.result.Result;
 import com.yyh.amailsite.common.utils.ValidateParams;
+import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.validation.BindingResult;
@@ -26,7 +27,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/info/{id}")
+    @GetMapping("/{id}")
     public Result<UserVo> getUserInfo(@PathVariable String id) {
         UserVo userInfo = userService.getUserInfo(id);
         return Result.ok(userInfo);
@@ -58,23 +59,23 @@ public class UserController {
         return Result.ok(userService.findUserListPage(page, size, userListDto));
     }
 
-    @PutMapping("/user/{id}")
+    @PutMapping("/")
     public Result<Boolean> updateUser(@Valid @RequestBody UserUpdateDto userUpdateDto,BindingResult bindingResult) {
         ValidateParams.validateRequestParams(bindingResult);
-        //todo
-        return null;
+        userService.updateUser(userUpdateDto);
+        return Result.ok(true);
     }
 
-    @DeleteMapping("/user/{id}")
-    public Result<Boolean> deleteUser(@PathVariable int id) {
-        //todo
-        return null;
+    @DeleteMapping("/{id}")
+    public Result<String> deleteUser(@PathVariable String id) {
+        userService.deleteUser(id);
+        return Result.ok(id);
     }
 
-    @DeleteMapping("/user")
-    public Result<Boolean> deleteUserBatch(@RequestParam int[] userId) {
-        //todo
-        return null;
+    @DeleteMapping("/")
+    public Result<String[]> deleteUserBatch(@RequestParam String[] userId) {
+        userService.batchDeleteUser(userId);
+        return Result.ok(userId);
     }
 
 

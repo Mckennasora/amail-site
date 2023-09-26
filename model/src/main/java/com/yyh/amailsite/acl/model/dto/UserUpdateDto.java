@@ -1,13 +1,13 @@
 package com.yyh.amailsite.acl.model.dto;
 
-import lombok.NonNull;
+import lombok.Data;
 
 import javax.validation.constraints.Email;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.util.Date;
 
+@Data
 public class UserUpdateDto {
+    private String id;
     @Size(min = 4, max = 16, message = "用户名长度为4-16")
     private String userNickname;
     @Email(message = "邮箱格式错误")

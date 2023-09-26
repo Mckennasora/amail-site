@@ -4,6 +4,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import com.yyh.amailsite.acl.model.dto.UserListDto;
 import com.yyh.amailsite.acl.model.dto.UserLoginDto;
 import com.yyh.amailsite.acl.model.dto.UserRegisterDto;
+import com.yyh.amailsite.acl.model.dto.UserUpdateDto;
 import com.yyh.amailsite.acl.model.entity.User;
 import com.yyh.amailsite.acl.model.predi.UserSpecifications;
 import com.yyh.amailsite.acl.model.vo.UserVo;
@@ -18,6 +19,8 @@ import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -126,6 +129,27 @@ public class UserServiceImpl implements UserService {
     @Override
     public void checkLogin() {
         StpUtil.checkLogin();
+    }
+
+    @Override
+    public void updateUser(UserUpdateDto userUpdateDto) {
+        User user = new User();
+        user.setId(userUpdateDto.getId());
+        user.setUserNickname(userUpdateDto.getUserNickname());
+        user.setGender(userUpdateDto.getGender());
+        user.setUserEmail(userUpdateDto.getUserEmail());
+        user.setUserPhone(userUpdateDto.getUserPhone());
+        User save = userRepository.save(user);
+    }
+
+    @Override
+    public void deleteUser(String id) {
+        userRepository.deleteById(id);
+    }
+
+    @Override
+    public void batchDeleteUser(String[] userId) {
+        userRepository.deleteAllById(Arrays.asList(userId));
     }
 
 
