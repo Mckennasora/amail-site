@@ -1,24 +1,19 @@
 package com.yyh.amailsite.acl.controller;
 
+import com.yyh.amailsite.acl.model.dto.UserListDto;
 import com.yyh.amailsite.acl.model.dto.UserLoginDto;
 import com.yyh.amailsite.acl.model.dto.UserRegisterDto;
-import com.yyh.amailsite.acl.model.entity.User;
+import com.yyh.amailsite.acl.model.dto.UserUpdateDto;
 import com.yyh.amailsite.acl.model.vo.UserVo;
 import com.yyh.amailsite.acl.service.UserService;
 import com.yyh.amailsite.common.result.Result;
 import com.yyh.amailsite.common.utils.ValidateParams;
-import org.hibernate.criterion.Order;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
+import org.springframework.data.domain.Page;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequestMapping("/user")
@@ -51,9 +46,34 @@ public class UserController {
         return Result.ok(userInfo);
     }
 
-    @GetMapping("/list/{page}")
-    public Result<List<UserVo>> userList(@PathVariable int page, @RequestParam(defaultValue = "10") int size) {
+    @GetMapping("/checklogin")
+    public Result<Boolean> checkLogin() {
+        userService.checkLogin();
+        return Result.ok(true);
+    }
 
+    @PostMapping("/list/{page}")
+    public Result<Page<UserVo>> userList(@PathVariable int page, @RequestParam(defaultValue = "10") int size,
+                                         @RequestBody UserListDto userListDto) {
+        return Result.ok(userService.findUserListPage(page, size, userListDto));
+    }
+
+    @PutMapping("/user/{id}")
+    public Result<Boolean> updateUser(@Valid @RequestBody UserUpdateDto userUpdateDto,BindingResult bindingResult) {
+        ValidateParams.validateRequestParams(bindingResult);
+        //todo
+        return null;
+    }
+
+    @DeleteMapping("/user/{id}")
+    public Result<Boolean> deleteUser(@PathVariable int id) {
+        //todo
+        return null;
+    }
+
+    @DeleteMapping("/user")
+    public Result<Boolean> deleteUserBatch(@RequestParam int[] userId) {
+        //todo
         return null;
     }
 

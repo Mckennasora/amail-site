@@ -1,21 +1,26 @@
 package com.yyh.amailsite.acl.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.yyh.amailsite.acl.model.dto.UserListDto;
 import com.yyh.amailsite.acl.model.dto.UserLoginDto;
 import com.yyh.amailsite.acl.model.dto.UserRegisterDto;
 import com.yyh.amailsite.acl.model.entity.User;
+import com.yyh.amailsite.acl.model.predi.UserSpecifications;
 import com.yyh.amailsite.acl.model.vo.UserVo;
 import com.yyh.amailsite.acl.repo.UserRepository;
 import com.yyh.amailsite.acl.service.UserService;
 import com.yyh.amailsite.common.exception.AmailException;
 import com.yyh.amailsite.common.result.ResultCodeEnum;
-
-import java.util.Optional;
-
 import com.yyh.amailsite.common.utils.HashPasswordGenerator;
 import com.yyh.amailsite.common.utils.ShortUUIDGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -91,6 +96,38 @@ public class UserServiceImpl implements UserService {
 
         return getSafetyUser(byUsername);
     }
+
+    @Override
+    public Page<UserVo> findUserListPage(int page, int size, UserListDto userListDto) {
+        String createTimeSortStr = userListDto.getCreateTimeSort();
+        String updateTimeSortStr = userListDto.getUpdateTimeSort();
+        Sort.Order createTimeSortOrder = null;
+        if (createTimeSortStr == null || createTimeSortStr.equals("asc")) {
+            createTimeSortOrder = Sort.Order.asc("createTime");
+        } else {
+            createTimeSortOrder = Sort.Order.desc("createTime");
+        }
+        Sort.Order updateTimeSortOrder = null;
+        if (updateTimeSortStr == null || updateTimeSortStr.equals("asc")) {
+            updateTimeSortOrder = Sort.Order.asc("updateTime");
+        } else {
+            updateTimeSortOrder = Sort.Order.desc("updateTime");
+        }
+        Sort sort = Sort.by(createTimeSortOrder, updateTimeSortOrder);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Specification<User> userSpecification = UserSpecifications.withUserListDto(userListDto);
+
+        Page<User> userListPage = userRepository.findAll(userSpecification, pageable);
+        List<UserVo> userVoListPage = userListPage.get().map(this::getSafetyUser).collect(Collectors.toList());
+        return new PageImpl<>(userVoListPage, userListPage.getPageable(), userListPage.getTotalElements());
+    }
+
+    @Override
+    public void checkLogin() {
+        StpUtil.checkLogin();
+    }
+
 
     private UserVo getSafetyUser(User user) {
         UserVo userVo = new UserVo();

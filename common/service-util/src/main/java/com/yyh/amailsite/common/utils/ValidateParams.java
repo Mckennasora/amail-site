@@ -1,7 +1,6 @@
 package com.yyh.amailsite.common.utils;
 
 import com.yyh.amailsite.common.exception.AmailException;
-import com.yyh.amailsite.common.result.Result;
 import com.yyh.amailsite.common.result.ResultCodeEnum;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;

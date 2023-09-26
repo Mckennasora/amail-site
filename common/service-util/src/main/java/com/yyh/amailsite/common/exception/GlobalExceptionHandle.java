@@ -1,8 +1,7 @@
 package com.yyh.amailsite.common.exception;
 
+import cn.dev33.satoken.exception.NotLoginException;
 import com.yyh.amailsite.common.result.Result;
-import com.yyh.amailsite.common.result.ResultCodeEnum;
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -20,9 +19,15 @@ public class GlobalExceptionHandle {
 
     @ExceptionHandler({AmailException.class})
     @ResponseBody
-    public Result error(AmailException e) {
+    public Result fail(AmailException e) {
         log.error(e.getMessage());
         return Result.fail(e.getMessage());
+    }
+
+    @ExceptionHandler({NotLoginException.class})
+    @ResponseBody
+    public Result notLogin(NotLoginException e) {
+        return Result.fail("未登录");
     }
 }
 
