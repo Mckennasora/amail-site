@@ -6,7 +6,7 @@ import com.yyh.amailsite.acl.model.dto.UserLoginDto;
 import com.yyh.amailsite.acl.model.dto.UserRegisterDto;
 import com.yyh.amailsite.acl.model.dto.UserUpdateDto;
 import com.yyh.amailsite.acl.model.entity.User;
-import com.yyh.amailsite.acl.model.predi.UserSpecifications;
+import com.yyh.amailsite.acl.util.UserSpecifications;
 import com.yyh.amailsite.acl.model.vo.UserVo;
 import com.yyh.amailsite.acl.repo.UserRepository;
 import com.yyh.amailsite.acl.service.UserService;
@@ -19,7 +19,6 @@ import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -38,7 +37,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public UserVo getUserInfo(String id) {
+    public UserVo getUserVo(String id) {
         Optional<User> byId = userRepository.findById(id);
         if (byId.isPresent()) {
             return getSafetyUser(byId.get());
@@ -133,23 +132,44 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUser(UserUpdateDto userUpdateDto) {
-        User user = new User();
-        user.setId(userUpdateDto.getId());
+        User user = getUserById(userUpdateDto.getId());
         user.setUserNickname(userUpdateDto.getUserNickname());
         user.setGender(userUpdateDto.getGender());
         user.setUserEmail(userUpdateDto.getUserEmail());
         user.setUserPhone(userUpdateDto.getUserPhone());
-        User save = userRepository.save(user);
+
+         userRepository.save(user);
     }
 
     @Override
     public void deleteUser(String id) {
-        userRepository.deleteById(id);
+        User userById = getUserById(id);
+        userById.setIsDeleted(1);
+        userRepository.save(userById);
     }
 
     @Override
-    public void batchDeleteUser(String[] userId) {
-        userRepository.deleteAllById(Arrays.asList(userId));
+    public void batchDeleteUser(String[] userIds) {
+        List<User> userByIds = getUserByIds(userIds);
+        userByIds.forEach(user -> user.setIsDeleted(1));
+        userRepository.saveAll(userByIds);
+    }
+
+    private User getUserById(String id){
+        Optional<User> opt = userRepository.findById(id);
+        if(opt.isPresent()){
+            return opt.get();
+        }else {
+            throw new AmailException(ResultCodeEnum.FAIL,"找不到用户");
+        }
+    }
+    private List<User> getUserByIds(String[] ids){
+        List<User> allById = userRepository.findAllById(Arrays.asList(ids));
+        if(!allById.isEmpty()){
+            return allById;
+        }else {
+            throw new AmailException(ResultCodeEnum.FAIL,"找不到用户");
+        }
     }
 
 

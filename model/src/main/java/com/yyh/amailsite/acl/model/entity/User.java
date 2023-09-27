@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
+import org.hibernate.annotations.Where;
 import org.springframework.boot.context.properties.bind.DefaultValue;
 
 
@@ -15,6 +16,7 @@ import java.util.Date;
 @Table(schema = "user")
 @DynamicInsert
 @DynamicUpdate
+@Where(clause = "isDeleted = 0")
 public class User {
     @Id
     private String id;

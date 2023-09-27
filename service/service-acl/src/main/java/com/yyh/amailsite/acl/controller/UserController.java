@@ -8,7 +8,6 @@ import com.yyh.amailsite.acl.model.vo.UserVo;
 import com.yyh.amailsite.acl.service.UserService;
 import com.yyh.amailsite.common.result.Result;
 import com.yyh.amailsite.common.utils.ValidateParams;
-import io.swagger.models.auth.In;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.validation.BindingResult;
@@ -29,7 +28,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     public Result<UserVo> getUserInfo(@PathVariable String id) {
-        UserVo userInfo = userService.getUserInfo(id);
+        UserVo userInfo = userService.getUserVo(id);
         return Result.ok(userInfo);
     }
 
@@ -77,7 +76,5 @@ public class UserController {
         userService.batchDeleteUser(userId);
         return Result.ok(userId);
     }
-
-
 }
 

@@ -1,11 +1,11 @@
-package com.yyh.amailsite.acl.model.predi;
+package com.yyh.amailsite.acl.util;
 
+import cn.hutool.core.util.StrUtil;
 import com.yyh.amailsite.acl.model.dto.UserListDto;
 import com.yyh.amailsite.acl.model.entity.User;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Predicate;
-import java.util.Date;
 
 public class UserSpecifications {
 
@@ -21,28 +21,28 @@ public class UserSpecifications {
 
         return (root, query, criteriaBuilder) -> {
             Predicate predicate = criteriaBuilder.conjunction();
-            if (id != null && !id.isEmpty()) {
+            if (StrUtil.isNotBlank(id)) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("id"), "%" + id + "%"));
             }
-            if (username != null && !username.isEmpty()) {
+            if (StrUtil.isNotBlank(username)) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("username"), "%" + username + "%"));
             }
-            if (userNickname != null && !userNickname.isEmpty()) {
+            if (StrUtil.isNotBlank(userNickname)) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("userNickname"), "%" + userNickname + "%"));
             }
-            if (userEmail != null && !userEmail.isEmpty()) {
+            if (StrUtil.isNotBlank(userEmail)) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("userEmail"), "%" + userEmail + "%"));
             }
-            if (userPhone != null && !userPhone.isEmpty()) {
+            if (StrUtil.isNotBlank(userPhone)) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("userPhone"), "%" + userPhone + "%"));
             }
-            if (createTime != null && !createTime.isEmpty()) {
+            if (StrUtil.isNotBlank(createTime)) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(criteriaBuilder.function("date_format", String.class, root.get("createTime"), criteriaBuilder.literal("%Y-%m-%d %H:00:00")), "%" + createTime + "%"));
             }
-            if (updateTime != null && !updateTime.isEmpty()) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("updateTime"), "%" + updateTime + "%"));
+            if (StrUtil.isNotBlank(updateTime)) {
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(criteriaBuilder.function("date_format", String.class, root.get("updateTime"), criteriaBuilder.literal("%Y-%m-%d %H:00:00")), "%" + updateTime + "%"));
             }
-            if (gender != null) {
+            if (StrUtil.isNotBlank(gender)) {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("gender"), gender));
             }
             return predicate;
