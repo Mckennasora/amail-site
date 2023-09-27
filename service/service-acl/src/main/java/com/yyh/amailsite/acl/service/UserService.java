@@ -1,10 +1,10 @@
 package com.yyh.amailsite.acl.service;
 
-import com.yyh.amailsite.acl.model.dto.UserListDto;
-import com.yyh.amailsite.acl.model.dto.UserLoginDto;
-import com.yyh.amailsite.acl.model.dto.UserRegisterDto;
-import com.yyh.amailsite.acl.model.dto.UserUpdateDto;
-import com.yyh.amailsite.acl.model.vo.UserVo;
+import com.yyh.amailsite.acl.model.user.dto.UserListDto;
+import com.yyh.amailsite.acl.model.user.dto.UserLoginDto;
+import com.yyh.amailsite.acl.model.user.dto.UserRegisterDto;
+import com.yyh.amailsite.acl.model.user.dto.UserUpdateDto;
+import com.yyh.amailsite.acl.model.user.vo.UserVo;
 import org.springframework.data.domain.Page;
 
 public interface UserService {

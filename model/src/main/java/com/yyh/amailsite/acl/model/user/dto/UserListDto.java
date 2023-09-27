@@ -1,17 +1,19 @@
-package com.yyh.amailsite.acl.model.vo;
+package com.yyh.amailsite.acl.model.user.dto;
 
 import lombok.Data;
 
 import java.util.Date;
 
 @Data
-public class UserVo {
+public class UserListDto {
     private String id;
     private String username;
     private String userNickname;
     private String gender;
     private String userEmail;
     private String userPhone;
-    private Date createTime;
-    private Date updateTime;
+    private String createTime;
+    private String createTimeSort;
+    private String updateTime;
+    private String updateTimeSort;
 }

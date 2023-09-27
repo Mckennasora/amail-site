@@ -1,13 +1,13 @@
 package com.yyh.amailsite.acl.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
-import com.yyh.amailsite.acl.model.dto.UserListDto;
-import com.yyh.amailsite.acl.model.dto.UserLoginDto;
-import com.yyh.amailsite.acl.model.dto.UserRegisterDto;
-import com.yyh.amailsite.acl.model.dto.UserUpdateDto;
-import com.yyh.amailsite.acl.model.entity.User;
+import com.yyh.amailsite.acl.model.user.dto.UserListDto;
+import com.yyh.amailsite.acl.model.user.dto.UserLoginDto;
+import com.yyh.amailsite.acl.model.user.dto.UserRegisterDto;
+import com.yyh.amailsite.acl.model.user.dto.UserUpdateDto;
+import com.yyh.amailsite.acl.model.user.entity.User;
 import com.yyh.amailsite.acl.util.UserSpecifications;
-import com.yyh.amailsite.acl.model.vo.UserVo;
+import com.yyh.amailsite.acl.model.user.vo.UserVo;
 import com.yyh.amailsite.acl.repo.UserRepository;
 import com.yyh.amailsite.acl.service.UserService;
 import com.yyh.amailsite.common.exception.AmailException;

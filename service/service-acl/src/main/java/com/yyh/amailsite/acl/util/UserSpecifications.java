@@ -1,8 +1,8 @@
 package com.yyh.amailsite.acl.util;
 
 import cn.hutool.core.util.StrUtil;
-import com.yyh.amailsite.acl.model.dto.UserListDto;
-import com.yyh.amailsite.acl.model.entity.User;
+import com.yyh.amailsite.acl.model.user.dto.UserListDto;
+import com.yyh.amailsite.acl.model.user.entity.User;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.Predicate;

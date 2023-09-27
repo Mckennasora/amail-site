@@ -1,4 +1,4 @@
-package com.yyh.amailsite.acl.model.entity;
+package com.yyh.amailsite.acl.model.user.entity;
 
 import lombok.Builder;
 import lombok.Data;

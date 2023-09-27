@@ -1,4 +1,4 @@
-package com.yyh.amailsite.acl.model.dto;
+package com.yyh.amailsite.acl.model.user.dto;
 
 import lombok.Data;
 

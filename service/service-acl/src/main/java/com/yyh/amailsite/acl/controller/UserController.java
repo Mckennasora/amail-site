@@ -1,10 +1,10 @@
 package com.yyh.amailsite.acl.controller;
 
-import com.yyh.amailsite.acl.model.dto.UserListDto;
-import com.yyh.amailsite.acl.model.dto.UserLoginDto;
-import com.yyh.amailsite.acl.model.dto.UserRegisterDto;
-import com.yyh.amailsite.acl.model.dto.UserUpdateDto;
-import com.yyh.amailsite.acl.model.vo.UserVo;
+import com.yyh.amailsite.acl.model.user.dto.UserListDto;
+import com.yyh.amailsite.acl.model.user.dto.UserLoginDto;
+import com.yyh.amailsite.acl.model.user.dto.UserRegisterDto;
+import com.yyh.amailsite.acl.model.user.dto.UserUpdateDto;
+import com.yyh.amailsite.acl.model.user.vo.UserVo;
 import com.yyh.amailsite.acl.service.UserService;
 import com.yyh.amailsite.common.result.Result;
 import com.yyh.amailsite.common.utils.ValidateParams;
