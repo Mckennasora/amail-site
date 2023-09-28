@@ -2,8 +2,6 @@ package com.yyh.amailsite.acl.model.user.dto;
 
 import lombok.Data;
 
-import java.util.Date;
-
 @Data
 public class UserListDto {
     private String id;

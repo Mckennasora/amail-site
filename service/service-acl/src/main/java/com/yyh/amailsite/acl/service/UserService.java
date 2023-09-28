@@ -1,9 +1,6 @@
 package com.yyh.amailsite.acl.service;
 
-import com.yyh.amailsite.acl.model.user.dto.UserListDto;
-import com.yyh.amailsite.acl.model.user.dto.UserLoginDto;
-import com.yyh.amailsite.acl.model.user.dto.UserRegisterDto;
-import com.yyh.amailsite.acl.model.user.dto.UserUpdateDto;
+import com.yyh.amailsite.acl.model.user.dto.*;
 import com.yyh.amailsite.acl.model.user.vo.UserVo;
 import org.springframework.data.domain.Page;
 
@@ -24,4 +21,6 @@ public interface UserService {
     void deleteUser(String id);
 
     void batchDeleteUser(String[] userId);
+
+    UserVo add(UserAddDto userAddDto);
 }

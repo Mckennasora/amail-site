@@ -1,13 +1,11 @@
 package com.yyh.amailsite.acl.controller;
 
-import com.yyh.amailsite.acl.model.user.dto.UserListDto;
-import com.yyh.amailsite.acl.model.user.dto.UserLoginDto;
-import com.yyh.amailsite.acl.model.user.dto.UserRegisterDto;
-import com.yyh.amailsite.acl.model.user.dto.UserUpdateDto;
+import com.yyh.amailsite.acl.model.user.dto.*;
 import com.yyh.amailsite.acl.model.user.vo.UserVo;
 import com.yyh.amailsite.acl.service.UserService;
 import com.yyh.amailsite.common.result.Result;
 import com.yyh.amailsite.common.utils.ValidateParams;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.validation.BindingResult;
@@ -39,6 +37,14 @@ public class UserController {
         return Result.ok(userInfo);
     }
 
+    @ApiOperation(value = "新增管理用户")
+    @PostMapping("/add")
+    public Result<UserVo> save(@Valid @RequestBody UserAddDto userAddDto, BindingResult bindingResult) {
+        ValidateParams.validateRequestParams(bindingResult);
+        UserVo user = userService.add(userAddDto);
+        return Result.ok(user);
+    }
+
     @PostMapping("/login")
     public Result<UserVo> userLogin(@Valid @RequestBody UserLoginDto userLoginDto, BindingResult bindingResult) {
         ValidateParams.validateRequestParams(bindingResult);
@@ -52,10 +58,10 @@ public class UserController {
         return Result.ok(true);
     }
 
-    @PostMapping("/list/{page}")
-    public Result<Page<UserVo>> userList(@PathVariable int page, @RequestParam(defaultValue = "10") int size,
+    @PostMapping("/{page}/{limit}")
+    public Result<Page<UserVo>> userList(@PathVariable int page, @RequestParam(defaultValue = "10") int limit,
                                          @RequestBody UserListDto userListDto) {
-        return Result.ok(userService.findUserListPage(page, size, userListDto));
+        return Result.ok(userService.findUserListPage(page, limit, userListDto));
     }
 
     @PutMapping("/")

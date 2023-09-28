@@ -1,10 +1,7 @@
 package com.yyh.amailsite.acl.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
-import com.yyh.amailsite.acl.model.user.dto.UserListDto;
-import com.yyh.amailsite.acl.model.user.dto.UserLoginDto;
-import com.yyh.amailsite.acl.model.user.dto.UserRegisterDto;
-import com.yyh.amailsite.acl.model.user.dto.UserUpdateDto;
+import com.yyh.amailsite.acl.model.user.dto.*;
 import com.yyh.amailsite.acl.model.user.entity.User;
 import com.yyh.amailsite.acl.util.UserSpecifications;
 import com.yyh.amailsite.acl.model.user.vo.UserVo;
@@ -13,6 +10,7 @@ import com.yyh.amailsite.acl.service.UserService;
 import com.yyh.amailsite.common.exception.AmailException;
 import com.yyh.amailsite.common.result.ResultCodeEnum;
 import com.yyh.amailsite.common.utils.HashPasswordGenerator;
+import com.yyh.amailsite.common.utils.PageRequestUtils;
 import com.yyh.amailsite.common.utils.ShortUUIDGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.*;
@@ -54,32 +52,11 @@ public class UserServiceImpl implements UserService {
         if (!password.equals(checkPassword)) {
             throw new AmailException(ResultCodeEnum.FAIL, "密码不一致");
         }
+
         String username = userRegisterDto.getUsername();
-        String shortUUID = ShortUUIDGenerator.generateShortUUID();
-        String encryptionPassword = HashPasswordGenerator.encryptionPassword(username, password);
+        User save = save(username, password);
 
-        User user = new User();
-        user.setId(shortUUID);
-        user.setUsername(username);
-        user.setPassword(encryptionPassword);
-        user.setUserNickname("");
-        user.setGender("");
-        user.setUserEmail("");
-        user.setUserPhone("");
-
-        synchronized (username.intern()) {
-            User byUsername = userRepository.findByUsername(username);
-            if (byUsername != null) {
-                throw new AmailException(ResultCodeEnum.FAIL, "用户名重复");
-            }
-            try {
-                userRepository.save(user);
-            } catch (Exception e) {
-                throw new AmailException(ResultCodeEnum.SERVICE_ERROR, "注册失败");
-            }
-        }
-
-        return getSafetyUser(user);
+        return getSafetyUser(save);
     }
 
     @Override
@@ -103,19 +80,7 @@ public class UserServiceImpl implements UserService {
     public Page<UserVo> findUserListPage(int page, int size, UserListDto userListDto) {
         String createTimeSortStr = userListDto.getCreateTimeSort();
         String updateTimeSortStr = userListDto.getUpdateTimeSort();
-        Sort.Order createTimeSortOrder = null;
-        if (createTimeSortStr == null || createTimeSortStr.equals("asc")) {
-            createTimeSortOrder = Sort.Order.asc("createTime");
-        } else {
-            createTimeSortOrder = Sort.Order.desc("createTime");
-        }
-        Sort.Order updateTimeSortOrder = null;
-        if (updateTimeSortStr == null || updateTimeSortStr.equals("asc")) {
-            updateTimeSortOrder = Sort.Order.asc("updateTime");
-        } else {
-            updateTimeSortOrder = Sort.Order.desc("updateTime");
-        }
-        Sort sort = Sort.by(createTimeSortOrder, updateTimeSortOrder);
+        Sort sort = PageRequestUtils.pageRequestSortTime(createTimeSortStr, updateTimeSortStr);
         Pageable pageable = PageRequest.of(page, size, sort);
 
         Specification<User> userSpecification = UserSpecifications.withUserListDto(userListDto);
@@ -138,7 +103,7 @@ public class UserServiceImpl implements UserService {
         user.setUserEmail(userUpdateDto.getUserEmail());
         user.setUserPhone(userUpdateDto.getUserPhone());
 
-         userRepository.save(user);
+        userRepository.save(user);
     }
 
     @Override
@@ -155,20 +120,55 @@ public class UserServiceImpl implements UserService {
         userRepository.saveAll(userByIds);
     }
 
-    private User getUserById(String id){
+    @Override
+    public UserVo add(UserAddDto userAddDto) {
+        User save = save(userAddDto.getUsername(), userAddDto.getPassword());
+        return getSafetyUser(save);
+    }
+
+    private User save(String username, String password) {
+
+        String shortUUID = ShortUUIDGenerator.generateShortUUID();
+        String encryptionPassword = HashPasswordGenerator.encryptionPassword(username, password);
+
+        User user = new User();
+        user.setId(shortUUID);
+        user.setUsername(username);
+        user.setPassword(encryptionPassword);
+        user.setUserNickname("");
+        user.setGender("");
+        user.setUserEmail("");
+        user.setUserPhone("");
+
+        synchronized (username.intern()) {
+            User byUsername = userRepository.findByUsername(username);
+            if (byUsername != null) {
+                throw new AmailException(ResultCodeEnum.FAIL, "用户名重复");
+            }
+            try {
+                userRepository.save(user);
+            } catch (Exception e) {
+                throw new AmailException(ResultCodeEnum.SERVICE_ERROR, "注册失败");
+            }
+        }
+        return user;
+    }
+
+    private User getUserById(String id) {
         Optional<User> opt = userRepository.findById(id);
-        if(opt.isPresent()){
+        if (opt.isPresent()) {
             return opt.get();
-        }else {
-            throw new AmailException(ResultCodeEnum.FAIL,"找不到用户");
+        } else {
+            throw new AmailException(ResultCodeEnum.FAIL, "找不到用户");
         }
     }
-    private List<User> getUserByIds(String[] ids){
+
+    private List<User> getUserByIds(String[] ids) {
         List<User> allById = userRepository.findAllById(Arrays.asList(ids));
-        if(!allById.isEmpty()){
+        if (!allById.isEmpty()) {
             return allById;
-        }else {
-            throw new AmailException(ResultCodeEnum.FAIL,"找不到用户");
+        } else {
+            throw new AmailException(ResultCodeEnum.FAIL, "找不到用户");
         }
     }
 
