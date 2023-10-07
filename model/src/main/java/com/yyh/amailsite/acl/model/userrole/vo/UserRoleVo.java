@@ -9,6 +9,8 @@ public class UserRoleVo {
     private String id;
     private String userId;
     private String roleId;
+    private String roleName;
+    private String[] roleArrPermission;
     private Date createTime;
     private Date updateTime;
 }

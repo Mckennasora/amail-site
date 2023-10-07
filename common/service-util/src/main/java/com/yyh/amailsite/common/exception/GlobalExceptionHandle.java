@@ -1,6 +1,7 @@
 package com.yyh.amailsite.common.exception;
 
 import cn.dev33.satoken.exception.NotLoginException;
+import cn.dev33.satoken.exception.NotRoleException;
 import com.yyh.amailsite.common.result.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -28,6 +29,12 @@ public class GlobalExceptionHandle {
     @ResponseBody
     public Result notLogin(NotLoginException e) {
         return Result.fail("未登录");
+    }
+
+    @ExceptionHandler({NotRoleException.class})
+    @ResponseBody
+    public Result notLogin(NotRoleException e) {
+        return Result.fail("无权限");
     }
 }
 

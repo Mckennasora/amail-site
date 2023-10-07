@@ -3,6 +3,8 @@ package com.yyh.amailsite.acl.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import com.yyh.amailsite.acl.model.user.dto.*;
 import com.yyh.amailsite.acl.model.user.entity.User;
+import com.yyh.amailsite.acl.model.userrole.dto.UserRoleAddDto;
+import com.yyh.amailsite.acl.service.UserRoleService;
 import com.yyh.amailsite.acl.util.UserSpecifications;
 import com.yyh.amailsite.acl.model.user.vo.UserVo;
 import com.yyh.amailsite.acl.repo.UserRepository;
@@ -28,21 +30,14 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
+    private final UserRoleService userRoleService;
+
     @Autowired
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, UserRoleService userRoleService) {
         this.userRepository = userRepository;
+        this.userRoleService = userRoleService;
     }
 
-
-    @Override
-    public UserVo getUserVo(String id) {
-        Optional<User> byId = userRepository.findById(id);
-        if (byId.isPresent()) {
-            return getSafetyUser(byId.get());
-        } else {
-            throw new AmailException(ResultCodeEnum.FAIL, "查询失败");
-        }
-    }
 
     @Override
     public UserVo register(UserRegisterDto userRegisterDto) {
@@ -55,6 +50,8 @@ public class UserServiceImpl implements UserService {
 
         String username = userRegisterDto.getUsername();
         User save = save(username, password);
+        //todo 角色信息加载到内存
+        userRoleService.addUserRole(new UserRoleAddDto(new String[]{"6f3f2191"},save.getId()));
 
         return getSafetyUser(save);
     }
@@ -71,23 +68,15 @@ public class UserServiceImpl implements UserService {
         if (!byUsername.getPassword().equals(encryptionPassword)) {
             throw new AmailException(ResultCodeEnum.FAIL, "用户名与密码不匹配");
         }
-        StpUtil.login(byUsername.getUsername());
+
+        StpUtil.login(byUsername.getId());
 
         return getSafetyUser(byUsername);
     }
 
     @Override
-    public Page<UserVo> findUserListPage(int page, int size, UserListDto userListDto) {
-        String createTimeSortStr = userListDto.getCreateTimeSort();
-        String updateTimeSortStr = userListDto.getUpdateTimeSort();
-        Sort sort = PageRequestUtils.pageRequestSortTime(createTimeSortStr, updateTimeSortStr);
-        Pageable pageable = PageRequest.of(page, size, sort);
-
-        Specification<User> userSpecification = UserSpecifications.withUserListDto(userListDto);
-
-        Page<User> userListPage = userRepository.findAll(userSpecification, pageable);
-        List<UserVo> userVoListPage = userListPage.get().map(this::getSafetyUser).collect(Collectors.toList());
-        return new PageImpl<>(userVoListPage, userListPage.getPageable(), userListPage.getTotalElements());
+    public void logout() {
+        StpUtil.logout();
     }
 
     @Override
@@ -125,6 +114,44 @@ public class UserServiceImpl implements UserService {
         User save = save(userAddDto.getUsername(), userAddDto.getPassword());
         return getSafetyUser(save);
     }
+
+    @Override
+    public UserVo getUserVo(String id) {
+        Optional<User> byId = userRepository.findById(id);
+        if (byId.isPresent()) {
+            return getSafetyUser(byId.get());
+        } else {
+            throw new AmailException(ResultCodeEnum.FAIL, "查询失败");
+        }
+    }
+
+    @Override
+    public Page<UserVo> findUserListPage(int page, int size, UserListDto userListDto) {
+        String createTimeSortStr = userListDto.getCreateTimeSort();
+        String updateTimeSortStr = userListDto.getUpdateTimeSort();
+        Sort sort = PageRequestUtils.pageRequestSortTime(createTimeSortStr, updateTimeSortStr);
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Specification<User> userSpecification = UserSpecifications.withUserListDto(userListDto);
+
+        Page<User> userListPage = userRepository.findAll(userSpecification, pageable);
+        List<UserVo> userVoListPage = userListPage.get().map(this::getSafetyUser).collect(Collectors.toList());
+        return new PageImpl<>(userVoListPage, userListPage.getPageable(), userListPage.getTotalElements());
+    }
+
+    @Override
+    public UserVo getSelfUserVo() {
+        String loginId = (String) StpUtil.getLoginId();
+        return getUserVo(loginId);
+    }
+
+    @Override
+    public void updateSelf(UserUpdateDto userUpdateDto) {
+        String loginId = (String) StpUtil.getLoginId();
+        userUpdateDto.setId(loginId);
+        updateUser(userUpdateDto);
+    }
+
 
     private User save(String username, String password) {
 
@@ -171,7 +198,6 @@ public class UserServiceImpl implements UserService {
             throw new AmailException(ResultCodeEnum.FAIL, "找不到用户");
         }
     }
-
 
     private UserVo getSafetyUser(User user) {
         UserVo userVo = new UserVo();

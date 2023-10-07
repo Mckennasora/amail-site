@@ -6,13 +6,12 @@ import org.springframework.data.domain.Page;
 
 public interface UserService {
 
-    UserVo getUserVo(String id);
 
     UserVo register(UserRegisterDto userRegisterDto);
 
     UserVo login(UserLoginDto userLoginDto);
 
-    Page<UserVo> findUserListPage(int page, int size, UserListDto userListDto);
+    void logout();
 
     void checkLogin();
 
@@ -23,4 +22,12 @@ public interface UserService {
     void batchDeleteUser(String[] userId);
 
     UserVo add(UserAddDto userAddDto);
+
+    UserVo getUserVo(String id);
+
+    Page<UserVo> findUserListPage(int page, int size, UserListDto userListDto);
+
+    UserVo getSelfUserVo();
+
+    void updateSelf(UserUpdateDto userUpdateDto);
 }

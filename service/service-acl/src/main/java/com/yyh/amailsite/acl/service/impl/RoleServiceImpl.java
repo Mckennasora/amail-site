@@ -107,7 +107,7 @@ public class RoleServiceImpl implements RoleService {
         if (opt.isPresent()) {
             return opt.get();
         } else {
-            throw new AmailException(ResultCodeEnum.FAIL, "找不到用户");
+            throw new AmailException(ResultCodeEnum.FAIL, "找不到角色");
         }
     }
 
@@ -116,7 +116,7 @@ public class RoleServiceImpl implements RoleService {
         if (!allById.isEmpty()) {
             return allById;
         } else {
-            throw new AmailException(ResultCodeEnum.FAIL, "找不到用户");
+            throw new AmailException(ResultCodeEnum.FAIL, "找不到角色");
         }
     }
 

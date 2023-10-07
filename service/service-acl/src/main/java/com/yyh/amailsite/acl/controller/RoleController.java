@@ -1,5 +1,6 @@
 package com.yyh.amailsite.acl.controller;
 
+import cn.dev33.satoken.annotation.SaCheckRole;
 import com.yyh.amailsite.acl.model.role.dto.RoleAddDto;
 import com.yyh.amailsite.acl.model.role.dto.RoleListDto;
 import com.yyh.amailsite.acl.model.role.dto.RoleUpdateDto;
@@ -16,6 +17,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/role")
+@SaCheckRole("admin")
 public class RoleController {
 
     public final RoleService roleService;
@@ -27,7 +29,7 @@ public class RoleController {
 
     //    @ApiOperation(value = "新增角色")
     @PostMapping("/add")
-    public Result<RoleVo> save(@Valid @RequestBody RoleAddDto roleAddDto, BindingResult bindingResult) {
+    public Result<RoleVo> addRole(@Valid @RequestBody RoleAddDto roleAddDto, BindingResult bindingResult) {
         ValidateParams.validateRequestParams(bindingResult);
         RoleVo role = roleService.addRole(roleAddDto);
         return Result.ok(role);
@@ -46,7 +48,7 @@ public class RoleController {
     }
 
     @PutMapping("/")
-    public Result<Boolean> updateUser(@Valid @RequestBody RoleUpdateDto roleUpdateDto, BindingResult bindingResult) {
+    public Result<Boolean> updateRole(@Valid @RequestBody RoleUpdateDto roleUpdateDto, BindingResult bindingResult) {
         ValidateParams.validateRequestParams(bindingResult);
         roleService.updateRole(roleUpdateDto);
         return Result.ok(true);

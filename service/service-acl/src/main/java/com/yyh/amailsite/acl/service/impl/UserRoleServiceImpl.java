@@ -4,7 +4,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import com.yyh.amailsite.acl.model.role.entity.Role;
-import com.yyh.amailsite.acl.model.role.vo.RoleVo;
 import com.yyh.amailsite.acl.model.user.entity.User;
 import com.yyh.amailsite.acl.model.userrole.dto.UserRoleAddDto;
 import com.yyh.amailsite.acl.model.userrole.entity.UserRole;
@@ -83,24 +82,29 @@ public class UserRoleServiceImpl implements UserRoleService {
     }
 
     @Override
-    public List<RoleVo> findUserRoleByUserId(String userId) {
+    public List<UserRoleVo> findUserRoleByUserId(String userId) {
         List<UserRole> userRoles = userRoleRepository.findByUserId(userId);
+        userRoles.sort(Comparator.comparing(UserRole::getRoleId));
 
         List<String> roleIds = userRoles.stream().map(UserRole::getRoleId).collect(Collectors.toList());
 
-        List<Role> allById = roleRepository.findAllById(roleIds);
+        List<Role> allById = roleRepository.findByIdInOrderByIdAsc(roleIds);
         if (!allById.isEmpty()) {
-            return allById.stream().map(role -> {
-                RoleVo roleVo = new RoleVo();
-                roleVo.setId(role.getId());
-                roleVo.setRoleName(role.getRoleName());
-                roleVo.setRoleArrPermission(role.getRoleArrPermission().split(","));
-                roleVo.setCreateTime(role.getCreateTime());
-                roleVo.setUpdateTime(role.getUpdateTime());
-                return roleVo;
-            }).collect(Collectors.toList());
+            ArrayList<UserRoleVo> userRoleVos = new ArrayList<>();
+            for (int i = 0; i < allById.size(); i++) {
+                Role role = allById.get(i);
+                UserRoleVo userRoleVo = new UserRoleVo();
+                userRoleVo.setId(userRoles.get(i).getId());
+                userRoleVo.setRoleId(role.getId());
+                userRoleVo.setRoleName(role.getRoleName());
+                userRoleVo.setRoleArrPermission(role.getRoleArrPermission().split(","));
+                userRoleVo.setCreateTime(role.getCreateTime());
+                userRoleVo.setUpdateTime(role.getUpdateTime());
+                userRoleVos.add(userRoleVo);
+            }
+            return userRoleVos;
         } else {
-            throw new AmailException(ResultCodeEnum.FAIL, "找不到用户");
+            throw new AmailException(ResultCodeEnum.FAIL, "无权限");
         }
     }
 

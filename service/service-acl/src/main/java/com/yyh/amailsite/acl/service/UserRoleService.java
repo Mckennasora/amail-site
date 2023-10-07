@@ -13,5 +13,5 @@ public interface UserRoleService {
 
     void deleteByUserRoleIds(String[] ids);
 
-    List<RoleVo>  findUserRoleByUserId(String userId);
+    List<UserRoleVo>  findUserRoleByUserId(String userId);
 }
