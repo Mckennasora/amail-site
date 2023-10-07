@@ -51,7 +51,7 @@ public class UserServiceImpl implements UserService {
         String username = userRegisterDto.getUsername();
         User save = save(username, password);
         //todo 角色信息加载到内存
-        userRoleService.addUserRole(new UserRoleAddDto(new String[]{"6f3f2191"},save.getId()));
+        userRoleService.addUserRole(new UserRoleAddDto(new String[]{"6f3f2191"}, save.getId()));
 
         return getSafetyUser(save);
     }

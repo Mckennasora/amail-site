@@ -15,7 +15,7 @@ public enum ResultCodeEnum {
     ILLEGAL_REQUEST(40002, "非法请求"),
     REPEAT_SUBMIT(40003, "重复提交"),
     LOGIN_AUTH(40301, "未登陆"),
-    PERMISSION(40300, "没有权限"),
+    PERMISSION(40300, "无权限"),
 
     SERVICE_ERROR(50000, "服务异常"),
     ;
