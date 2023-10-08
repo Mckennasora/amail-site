@@ -95,6 +95,7 @@ public class UserRoleServiceImpl implements UserRoleService {
                 Role role = allById.get(i);
                 UserRoleVo userRoleVo = new UserRoleVo();
                 userRoleVo.setId(userRoles.get(i).getId());
+                userRoleVo.setUserId(userId);
                 userRoleVo.setRoleId(role.getId());
                 userRoleVo.setRoleName(role.getRoleName());
                 userRoleVo.setRoleArrPermission(role.getRoleArrPermission().split(","));
