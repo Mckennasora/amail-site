@@ -113,12 +113,8 @@ public class MailPlanServiceImpl implements MailPlanService {
 
     @Override
     public Page<MailPlan> findMailPlanListPage(int page, int size, MailPlanListDto mailPlanListDto) {
-        String foundUserId = mailPlanListDto.getUserId();
-        if (!isOwner(mailPlanListDto.getUserId())) {
-            mailPlanListDto.setUserId((String) StpUtil.getLoginId());
-        }
-        if (StpUtil.hasRoleOr("admin", "root")) {
-            mailPlanListDto.setUserId(foundUserId);
+        if (!isOwner(mailPlanListDto.getUserId()) && !StpUtil.hasRoleOr("admin", "root")) {
+            throw new AmailException(ResultCodeEnum.PERMISSION);
         }
 
         String createTimeSortStr = mailPlanListDto.getCreateTimeSort();
@@ -134,12 +130,14 @@ public class MailPlanServiceImpl implements MailPlanService {
 
 
     private MailPlan getMailPlanById(String id) {
-        Optional<MailPlan> opt = mailPlanRepository.findById(id);
-        if (opt.isPresent()) {
-            return opt.get();
-        } else {
-            throw new AmailException(ResultCodeEnum.FAIL, "找不到该计划");
+        Optional<MailPlan> byId = mailPlanRepository.findById(id);
+        if (!byId.isPresent()) {
+            throw new AmailException(ResultCodeEnum.FAIL, "找不到该定时");
         }
+        if (!isOwner(byId.get().getUserId()) && !StpUtil.hasRoleOr("admin", "root")) {
+            throw new AmailException(ResultCodeEnum.PERMISSION);
+        }
+        return byId.get();
     }
 
     private List<MailPlan> getMailPlanByIds(String[] ids) {

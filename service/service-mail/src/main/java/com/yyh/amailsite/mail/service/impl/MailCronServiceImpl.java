@@ -103,17 +103,11 @@ public class MailCronServiceImpl implements MailCronService {
 
     @Override
     public Page<MailCron> findMailCronListPage(int page, int size, MailCronListDto mailCronListDto) {
-        String foundUserId = mailCronListDto.getUserId();
-        if (!isOwner(mailCronListDto.getUserId())) {
-            mailCronListDto.setUserId((String) StpUtil.getLoginId());
+        if (!isOwner(mailCronListDto.getUserId()) && !StpUtil.hasRoleOr("admin", "root")) {
+            throw new AmailException(ResultCodeEnum.PERMISSION);
         }
-        if (StpUtil.hasRoleOr("admin", "root")) {
-            mailCronListDto.setUserId(foundUserId);
-        }
-
 
         Pageable pageable = PageRequest.of(page, size);
-
 
         Page<MailCron> mailCronListPage = mailCronRepository.findAllByIsDeleted(mailCronListDto.getIsDeleted(), pageable);
         return new PageImpl<>(mailCronListPage.toList(), mailCronListPage.getPageable(), mailCronListPage.getTotalElements());
@@ -121,12 +115,14 @@ public class MailCronServiceImpl implements MailCronService {
 
 
     private MailCron getMailCronById(String id) {
-        Optional<MailCron> opt = mailCronRepository.findById(id);
-        if (opt.isPresent()) {
-            return opt.get();
-        } else {
+        Optional<MailCron> byId = mailCronRepository.findById(id);
+        if (!byId.isPresent()) {
             throw new AmailException(ResultCodeEnum.FAIL, "找不到该定时");
         }
+        if (!isOwner(byId.get().getUserId()) && !StpUtil.hasRoleOr("admin", "root")) {
+            throw new AmailException(ResultCodeEnum.PERMISSION);
+        }
+        return byId.get();
     }
 
     private List<MailCron> getMailCronByIds(String[] ids) {

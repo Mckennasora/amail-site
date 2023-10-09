@@ -3,25 +3,31 @@ package com.yyh.amailsite.mail.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import com.yyh.amailsite.common.exception.AmailException;
 import com.yyh.amailsite.common.result.ResultCodeEnum;
-import com.yyh.amailsite.mail.model.mailcron.entity.MailCron;
 import com.yyh.amailsite.mail.model.mailhistory.dto.MailHistoryListDto;
 import com.yyh.amailsite.mail.model.mailhistory.entity.MailHistory;
+import com.yyh.amailsite.mail.model.mailhistory.vo.MailHistoryVo;
 import com.yyh.amailsite.mail.repo.MailHistoryRepository;
 import com.yyh.amailsite.mail.service.MailHistoryService;
+import com.yyh.amailsite.mail.util.MailHistorySpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class MailHistoryServiceImpl implements MailHistoryService {
 
-    private MailHistoryRepository mailHistoryRepository;
+    private final MailHistoryRepository mailHistoryRepository;
 
     @Autowired
-    public MailHistoryServiceImpl(MailHistoryRepository mailHistoryRepository){
+    public MailHistoryServiceImpl(MailHistoryRepository mailHistoryRepository) {
         this.mailHistoryRepository = mailHistoryRepository;
     }
 
@@ -29,27 +35,67 @@ public class MailHistoryServiceImpl implements MailHistoryService {
     @Override
     public MailHistory getMailHistoryInfoById(String id) {
         Optional<MailHistory> byId = mailHistoryRepository.findById(id);
-        //todo  抽象
-        if (byId.isPresent()) {
-            if (!isOwner(byId.get().getUserId()) && !StpUtil.hasRoleOr("admin", "root")) {
+        if (!byId.isPresent()) {
+            throw new AmailException(ResultCodeEnum.FAIL, "找不到该记录");
+        }
+        if (!isOwner(byId.get().getUserId()) && !StpUtil.hasRoleOr("admin", "root")) {
+            throw new AmailException(ResultCodeEnum.PERMISSION);
+        }
+        return byId.get();
+
+    }
+
+    @Override
+    public List<MailHistoryVo> getMailHistoryListByMailPlanId(String mailPlanId) {
+        List<MailHistory> allByMailPlanIds = mailHistoryRepository.findAllByMailPlanId(mailPlanId);
+
+        return allByMailPlanIds.stream().map(mailHistory -> {
+            if (!isOwner(mailHistory.getUserId()) && !StpUtil.hasRoleOr("admin", "root")) {
                 throw new AmailException(ResultCodeEnum.PERMISSION);
             }
-            return byId.get();
-        } else {
-            throw new AmailException(ResultCodeEnum.FAIL, "查询失败");
+            return getMailHistoryVo(mailHistory);
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<MailHistoryVo> findMailHistoryListPage(int page, int limit, MailHistoryListDto mailHistoryListDto) {
+        //todo 将来支持所有字段搜索
+        String userId = mailHistoryListDto.getUserId();
+        if (!isOwner(userId) && !StpUtil.hasRoleOr("admin", "root")) {
+            throw new AmailException(ResultCodeEnum.PERMISSION);
         }
+
+        Pageable pageable = PageRequest.of(page, limit);
+
+        Page<MailHistory> mailHistoryPage = mailHistoryRepository.findAll(
+                MailHistorySpecifications.withMailHistoryListDto(mailHistoryListDto), pageable);
+        List<MailHistoryVo> mailHistoryVoList = mailHistoryPage.get().map(this::getMailHistoryVo).collect(Collectors.toList());
+        return new PageImpl<>(mailHistoryVoList,
+                mailHistoryPage.getPageable(), mailHistoryPage.getTotalElements());
     }
 
-    @Override
-    public List<MailHistory> getMailHistoryListByMailPlanId(String mailPlanId) {
-        Optional<MailHistory> byId = mailHistoryRepository.findById(mailPlanId);
-        //todo
-        return null;
-    }
+    private MailHistoryVo getMailHistoryVo(MailHistory mailHistory) {
+        MailHistoryVo mailHistoryVo = new MailHistoryVo();
+        mailHistoryVo.setId(mailHistory.getId());
+        mailHistoryVo.setUserId(mailHistory.getUserId());
+        mailHistoryVo.setMailPlanId(mailHistory.getMailPlanId());
+        mailHistoryVo.setArrSysScheduleId(mailHistory.getArrSysScheduleId());
+        mailHistoryVo.setSysScheduleIdList(Arrays.asList(mailHistory.getArrSysScheduleId().split(",")));
+        mailHistoryVo.setArrDIYScheduleId(mailHistory.getArrDIYScheduleId());
+        mailHistoryVo.setDIYScheduleIdList(Arrays.asList(mailHistory.getArrDIYScheduleId().split(",")));
+        mailHistoryVo.setSendByCronExpr(mailHistory.getSendByCronExpr());
+        mailHistoryVo.setToWho(mailHistory.getToWho());
+        mailHistoryVo.setSubject(mailHistory.getSubject());
+        mailHistoryVo.setMainBody(mailHistory.getMainBody());
+        mailHistoryVo.setArrPhotoUrl(mailHistory.getArrPhotoUrl());
+        mailHistoryVo.setTryCount(mailHistory.getTryCount());
+        mailHistoryVo.setRemarks(mailHistory.getRemarks());
+        mailHistoryVo.setCreateTime(mailHistory.getCreateTime());
+        mailHistoryVo.setUpdateTime(mailHistory.getUpdateTime());
+        mailHistoryVo.setIsSuccess(mailHistory.getIsSuccess());
+        mailHistoryVo.setIsDeleted(mailHistory.getIsDeleted());
+        return mailHistoryVo;
 
-    @Override
-    public Page<MailHistory> findMailHistoryListPage(int page, int limit, MailHistoryListDto mailHistoryListDto) {
-        return null;
     }
 
     private boolean isOwner(String userId) {
