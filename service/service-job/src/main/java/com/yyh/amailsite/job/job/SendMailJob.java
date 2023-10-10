@@ -11,19 +11,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Slf4j
 public class SendMailJob implements Job {
 
+    @Autowired
     private MailFeignClient mailFeignClient;
 
-    @Autowired
-    public SendMailJob(MailFeignClient mailFeignClient){
-        this.mailFeignClient = mailFeignClient;
+    public SendMailJob() {
     }
+
+
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        String mailPlanId = (String)jobExecutionContext.getJobDetail().getJobDataMap().get(JobConst.MAIL_PLAN_ID_KEY);
+        String mailPlanId = (String) jobExecutionContext.getJobDetail().getJobDataMap().get(JobConst.MAIL_PLAN_ID_KEY);
         String cronId = (String) jobExecutionContext.getTrigger().getJobDataMap().get(JobConst.MAIL_PLAN_CRON_ID_KEY);
         String cronExpr = (String) jobExecutionContext.getTrigger().getJobDataMap().get(JobConst.MAIL_PLAN_CRON_EXPR_KEY);
-        mailFeignClient.sendMail(mailPlanId,cronId,cronExpr);
+        mailFeignClient.sendMail(mailPlanId, cronId, cronExpr);
 
 
         JobKey jobKey = jobExecutionContext.getJobDetail().getKey();

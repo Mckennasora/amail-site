@@ -1,11 +1,10 @@
 spring:
-  spring:
-    application:
-      name: service-mail
-    cloud:
-      nacos:
-        discovery:
-          server-addr: localhost:9003
+  application:
+    name: service-mail
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:9003
   mail:
     host: smtp.163.com
     username: yyhsoraweb@163.com

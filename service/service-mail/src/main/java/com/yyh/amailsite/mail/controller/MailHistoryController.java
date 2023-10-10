@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/mailplan")
+@RequestMapping("/mailhistory")
 @SaCheckRole("user")
 public class MailHistoryController {
     public final MailHistoryService mailHistoryService;
@@ -37,7 +37,7 @@ public class MailHistoryController {
     }
 
     @PostMapping("/{page}")
-    public Result<Page<MailHistoryVo>> mailPlanList(@PathVariable int page, @RequestParam(defaultValue = "15") int limit,
+    public Result<Page<MailHistoryVo>> mailHistoryList(@PathVariable int page, @RequestParam(defaultValue = "15") int limit,
                                                     @RequestBody MailHistoryListDto mailHistoryListDto) {
         return Result.ok(mailHistoryService.findMailHistoryListPage(page, limit, mailHistoryListDto));
     }

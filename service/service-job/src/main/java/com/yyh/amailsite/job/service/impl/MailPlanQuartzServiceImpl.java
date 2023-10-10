@@ -9,6 +9,7 @@ import com.yyh.amailsite.mail.client.MailFeignClient;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,8 +22,9 @@ public class MailPlanQuartzServiceImpl implements MailPlanQuartzService {
 
     private static Scheduler scheduler;
 
-    private MailFeignClient mailFeignClient;
+    private final MailFeignClient mailFeignClient;
 
+    @Autowired
     public MailPlanQuartzServiceImpl(MailFeignClient mailFeignClient) throws SchedulerException {
         //todo 配置使用线程池 和 数据库
         scheduler = StdSchedulerFactory.getDefaultScheduler();
@@ -64,8 +66,8 @@ public class MailPlanQuartzServiceImpl implements MailPlanQuartzService {
     @Override
     public void disableMailPlan(String mailPlanId) throws SchedulerException {
         JobKey jobKey = new JobKey(mailPlanId, JobConst.MAIL_PLAN_GROUP);
-        if (!scheduler.deleteJob(jobKey)) {
-            log.error("mailPlan启动失败:{}", mailPlanId);
+        if(scheduler.checkExists(jobKey)&&!scheduler.deleteJob(jobKey)){
+            log.error("mailPlan关闭失败:{}", mailPlanId);
             throw new AmailException(ResultCodeEnum.SERVICE_ERROR, "mailPlan关闭失败");
         }
     }

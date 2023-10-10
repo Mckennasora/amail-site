@@ -122,8 +122,13 @@ public class MailPlanServiceImpl implements MailPlanService {
     }
 
     @Override
+    //传来之前就已经校验过用户了吧
     public Map<String, String> getCronMapByMailPlanId(String planId) {
-        MailPlan mailPlanById = getMailPlanById(planId);
+        Optional<MailPlan> byId = mailPlanRepository.findById(planId);
+        if(!byId.isPresent()){
+            throw new AmailException(ResultCodeEnum.FAIL);
+        }
+        MailPlan mailPlanById = byId.get();
 
 //        String arrSysScheduleId = byId.get().getArrSysScheduleId();
 //        String[] sysSchedule = arrSysScheduleId.split(",");
