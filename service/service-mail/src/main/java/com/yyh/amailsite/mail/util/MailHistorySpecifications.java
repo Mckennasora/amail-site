@@ -19,7 +19,7 @@ public class MailHistorySpecifications {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("userId"), "%" + userId + "%"));
             }
             if (StrUtil.isNotBlank(mailPlanId)) {
-                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("arrSysScheduleId"), "%" + mailPlanId + "%"));
+                predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(root.get("mailPlanId"), "%" + mailPlanId + "%"));
             }
             return predicate;
         };

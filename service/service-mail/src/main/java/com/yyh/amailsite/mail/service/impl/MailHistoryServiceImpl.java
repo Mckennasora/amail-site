@@ -92,8 +92,6 @@ public class MailHistoryServiceImpl implements MailHistoryService {
         mailHistory.setArrPhotoUrl(mailPlan.getArrPhotoUrl());
         mailHistory.setTryCount(tryCount);
         mailHistory.setRemarks(mailPlan.getRemarks());
-        mailHistory.setCreateTime(mailPlan.getCreateTime());
-        mailHistory.setUpdateTime(mailPlan.getUpdateTime());
         mailHistory.setIsSuccess(success ? 0 : 1);
         mailHistory.setIsDeleted(mailPlan.getIsDeleted());
 
@@ -112,6 +110,7 @@ public class MailHistoryServiceImpl implements MailHistoryService {
         mailHistoryVo.setArrDIYScheduleId(mailHistory.getArrDIYScheduleId());
         mailHistoryVo.setDIYScheduleIdList(Arrays.asList(mailHistory.getArrDIYScheduleId().split(",")));
         mailHistoryVo.setSendByCronExpr(mailHistory.getSendByCronExpr());
+        mailHistoryVo.setSendByCronExprId(mailHistory.getSendByCronExprId());
         mailHistoryVo.setToWho(mailHistory.getToWho());
         mailHistoryVo.setSubject(mailHistory.getSubject());
         mailHistoryVo.setMainBody(mailHistory.getMainBody());

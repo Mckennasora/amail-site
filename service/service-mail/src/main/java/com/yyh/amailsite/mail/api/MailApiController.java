@@ -2,14 +2,12 @@ package com.yyh.amailsite.mail.api;
 
 import com.yyh.amailsite.mail.model.mailcron.entity.MailCron;
 import com.yyh.amailsite.mail.model.mailhistory.vo.MailHistoryVo;
+import com.yyh.amailsite.mail.model.mailplan.dto.SendMailDto;
 import com.yyh.amailsite.mail.service.MailPlanService;
 import com.yyh.amailsite.mail.service.MailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -34,9 +32,9 @@ public class MailApiController {
         return mailPlanService.getCronMapByMailPlanId(planId);
     }
 
-    @GetMapping("/send/{planId}/{cronId}/{cronExpr}")
-    public MailHistoryVo sendMail(@PathVariable String planId, @PathVariable String cronId, @PathVariable String cronExpr) {
-        return mailService.sendMailAndAddHistory(planId, cronId, cronExpr);
+    @PostMapping("/send")
+    public MailHistoryVo sendMail(@RequestBody SendMailDto sendMailDto) {
+        return mailService.sendMailAndAddHistory(sendMailDto.getMailPlanId(), sendMailDto.getCronId(), sendMailDto.getCronExpr());
     }
 
 
