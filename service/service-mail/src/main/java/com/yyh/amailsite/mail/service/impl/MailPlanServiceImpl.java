@@ -6,6 +6,7 @@ import com.yyh.amailsite.common.result.ResultCodeEnum;
 import com.yyh.amailsite.common.utils.PageRequestUtils;
 import com.yyh.amailsite.common.utils.ShortUUIDGenerator;
 import com.yyh.amailsite.mail.model.mailcron.entity.MailCron;
+import com.yyh.amailsite.mail.model.mailplan.constant.MailPlanConst;
 import com.yyh.amailsite.mail.model.mailplan.dto.MailPlanAddDto;
 import com.yyh.amailsite.mail.model.mailplan.dto.MailPlanListDto;
 import com.yyh.amailsite.mail.model.mailplan.dto.MailPlanUpdateDto;
@@ -29,6 +30,8 @@ public class MailPlanServiceImpl implements MailPlanService {
 
     private final MailCronRepository mailCronRepository;
 
+//    private final RabbitService rabbitService;
+
     @Autowired
     public MailPlanServiceImpl(MailPlanRepository mailPlanRepository, MailCronRepository mailCronRepository) {
         this.mailPlanRepository = mailPlanRepository;
@@ -51,6 +54,7 @@ public class MailPlanServiceImpl implements MailPlanService {
         mailPlan.setMainBody(mailPlanAddDto.getMainBody());
         mailPlan.setArrPhotoUrl(String.join(",", mailPlanAddDto.getArrPhotoUrl()));
         mailPlan.setRemarks(mailPlanAddDto.getRemarks());
+        mailPlan.setIsEnable(MailPlanConst.MAIL_PLAN_DISABLE);
 
         mailPlanRepository.save(mailPlan);
 
@@ -135,6 +139,26 @@ public class MailPlanServiceImpl implements MailPlanService {
         mailCronList.forEach(mailCron -> cronMap.put(mailCron.getId(), mailCron.getCronExpr()));
 
         return cronMap;
+    }
+
+    @Override
+    public void enableMailPlan(String mailPlanId) {
+        MailPlan mailPlanById = getMailPlanById(mailPlanId);
+        mailPlanById.setIsEnable(MailPlanConst.MAIL_PLAN_ENABLE);
+
+        mailPlanRepository.save(mailPlanById);
+
+//        rabbitService.sendMessage(MqConst.EXCHANGE_GOODS_DIRECT, MqConst.ROUTING_GOODS_UPPER, mailPlanId);
+    }
+
+    @Override
+    public void disableMailPlan(String mailPlanId) {
+        MailPlan mailPlanById = getMailPlanById(mailPlanId);
+        mailPlanById.setIsEnable(MailPlanConst.MAIL_PLAN_DISABLE);
+
+        mailPlanRepository.save(mailPlanById);
+
+
     }
 
 

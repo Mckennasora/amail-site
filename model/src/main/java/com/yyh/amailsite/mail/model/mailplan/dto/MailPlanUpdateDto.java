@@ -1,10 +1,8 @@
 package com.yyh.amailsite.mail.model.mailplan.dto;
 
 import lombok.Data;
-import lombok.NonNull;
 
 import javax.validation.constraints.Email;
-import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 @Data

@@ -53,6 +53,18 @@ public class MailPlanController {
         return Result.ok(true);
     }
 
+    @GetMapping("/enable/{id}")
+    public Result<Boolean> enableMailPlan(@PathVariable String id) {
+        mailPlanService.enableMailPlan(id);
+        return Result.ok(true);
+    }
+
+    @GetMapping("/disable/{id}")
+    public Result<Boolean> disableMailPlan(@PathVariable String id) {
+        mailPlanService.disableMailPlan(id);
+        return Result.ok(true);
+    }
+
 
     @GetMapping("/{id}")
     public Result<MailPlan> getMailPlanInfo(@PathVariable String id) {

@@ -22,6 +22,7 @@ public class MailPlanSpecifications {
         String createTime = mailPlanListDto.getCreateTime();
         String updateTime = mailPlanListDto.getUpdateTime();
         Integer isDeleted = mailPlanListDto.getIsDeleted();
+        Integer isEnable = mailPlanListDto.getIsEnable();
 
         return (root, query, criteriaBuilder) -> {
             Predicate predicate = criteriaBuilder.conjunction();
@@ -59,6 +60,7 @@ public class MailPlanSpecifications {
                 predicate = criteriaBuilder.and(predicate, criteriaBuilder.like(criteriaBuilder.function("date_format", String.class, root.get("updateTime"), criteriaBuilder.literal("%Y-%m-%d %H:00:00")), "%" + updateTime + "%"));
             }
             predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("isDeleted"), isDeleted));
+            predicate = criteriaBuilder.and(predicate, criteriaBuilder.equal(root.get("isEnable"), isEnable));
             return predicate;
         };
     }

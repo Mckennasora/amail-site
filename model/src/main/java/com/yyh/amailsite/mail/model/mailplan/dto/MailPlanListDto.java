@@ -12,6 +12,7 @@ public class MailPlanListDto {
     private String subject;
     private String mainBody;
     private String arrPhotoUrl;
+    private Integer isEnable;
     private String remarks;
     private String createTime;
     private String createTimeSort;

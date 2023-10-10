@@ -26,6 +26,7 @@ public class MailPlan {
     private String arrPhotoUrl;
     private Integer sendCount;
     private String remarks;
+    private Integer isEnable;
     private Date createTime;
     private Date updateTime;
     private Integer isDeleted;

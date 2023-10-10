@@ -23,4 +23,8 @@ public interface MailPlanService {
     Page<MailPlan> findMailPlanListPage(int page, int size, MailPlanListDto mailPlanListDto);
 
     Map<String, String> getCronMapByMailPlanId(String planId);
+
+    void enableMailPlan(String id);
+
+    void disableMailPlan(String id);
 }
