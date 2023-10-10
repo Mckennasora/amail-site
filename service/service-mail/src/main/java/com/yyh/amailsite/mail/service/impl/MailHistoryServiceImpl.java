@@ -3,9 +3,11 @@ package com.yyh.amailsite.mail.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import com.yyh.amailsite.common.exception.AmailException;
 import com.yyh.amailsite.common.result.ResultCodeEnum;
+import com.yyh.amailsite.common.utils.ShortUUIDGenerator;
 import com.yyh.amailsite.mail.model.mailhistory.dto.MailHistoryListDto;
 import com.yyh.amailsite.mail.model.mailhistory.entity.MailHistory;
 import com.yyh.amailsite.mail.model.mailhistory.vo.MailHistoryVo;
+import com.yyh.amailsite.mail.model.mailplan.entity.MailPlan;
 import com.yyh.amailsite.mail.repo.MailHistoryRepository;
 import com.yyh.amailsite.mail.service.MailHistoryService;
 import com.yyh.amailsite.mail.util.MailHistorySpecifications;
@@ -72,6 +74,32 @@ public class MailHistoryServiceImpl implements MailHistoryService {
         List<MailHistoryVo> mailHistoryVoList = mailHistoryPage.get().map(this::getMailHistoryVo).collect(Collectors.toList());
         return new PageImpl<>(mailHistoryVoList,
                 mailHistoryPage.getPageable(), mailHistoryPage.getTotalElements());
+    }
+
+    @Override
+    public MailHistoryVo saveMailHistoryByMailPlan(MailPlan mailPlan, String cronExpr,String cronExprId, int tryCount, boolean success) {
+        MailHistory mailHistory = new MailHistory();
+        mailHistory.setId(ShortUUIDGenerator.generateShortUUID());
+        mailHistory.setUserId(mailPlan.getUserId());
+        mailHistory.setMailPlanId(mailPlan.getId());
+        mailHistory.setArrSysScheduleId(mailPlan.getArrSysScheduleId());
+        mailHistory.setArrDIYScheduleId(mailPlan.getArrDIYScheduleId());
+        mailHistory.setSendByCronExpr(cronExpr);
+        mailHistory.setSendByCronExprId(cronExprId);
+        mailHistory.setToWho(mailPlan.getToWho());
+        mailHistory.setSubject(mailPlan.getSubject());
+        mailHistory.setMainBody(mailPlan.getMainBody());
+        mailHistory.setArrPhotoUrl(mailPlan.getArrPhotoUrl());
+        mailHistory.setTryCount(tryCount);
+        mailHistory.setRemarks(mailPlan.getRemarks());
+        mailHistory.setCreateTime(mailPlan.getCreateTime());
+        mailHistory.setUpdateTime(mailPlan.getUpdateTime());
+        mailHistory.setIsSuccess(success ? 0 : 1);
+        mailHistory.setIsDeleted(mailPlan.getIsDeleted());
+
+        mailHistoryRepository.save(mailHistory);
+
+        return getMailHistoryVo(mailHistory);
     }
 
     private MailHistoryVo getMailHistoryVo(MailHistory mailHistory) {

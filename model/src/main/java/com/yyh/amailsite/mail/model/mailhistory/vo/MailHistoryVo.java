@@ -15,6 +15,7 @@ public class MailHistoryVo {
     private String arrDIYScheduleId;
     private List<String> DIYScheduleIdList;
     private String sendByCronExpr;
+    private String sendByCronExprId;
     private String toWho;
     private String subject;
     private String mainBody;

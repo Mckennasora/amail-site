@@ -5,10 +5,12 @@ import com.yyh.amailsite.common.exception.AmailException;
 import com.yyh.amailsite.common.result.ResultCodeEnum;
 import com.yyh.amailsite.common.utils.PageRequestUtils;
 import com.yyh.amailsite.common.utils.ShortUUIDGenerator;
+import com.yyh.amailsite.mail.model.mailcron.entity.MailCron;
 import com.yyh.amailsite.mail.model.mailplan.dto.MailPlanAddDto;
 import com.yyh.amailsite.mail.model.mailplan.dto.MailPlanListDto;
 import com.yyh.amailsite.mail.model.mailplan.dto.MailPlanUpdateDto;
 import com.yyh.amailsite.mail.model.mailplan.entity.MailPlan;
+import com.yyh.amailsite.mail.repo.MailCronRepository;
 import com.yyh.amailsite.mail.repo.MailPlanRepository;
 import com.yyh.amailsite.mail.service.MailPlanService;
 import com.yyh.amailsite.mail.util.MailPlanSpecifications;
@@ -17,9 +19,7 @@ import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 @Service
@@ -27,9 +27,12 @@ public class MailPlanServiceImpl implements MailPlanService {
 
     private final MailPlanRepository mailPlanRepository;
 
+    private final MailCronRepository mailCronRepository;
+
     @Autowired
-    public MailPlanServiceImpl(MailPlanRepository mailPlanRepository) {
+    public MailPlanServiceImpl(MailPlanRepository mailPlanRepository, MailCronRepository mailCronRepository) {
         this.mailPlanRepository = mailPlanRepository;
+        this.mailCronRepository = mailCronRepository;
     }
 
     @Override
@@ -40,6 +43,7 @@ public class MailPlanServiceImpl implements MailPlanService {
         mailPlan.setId(shortUUID);
         mailPlan.setUserId((String) StpUtil.getLoginId());
 
+        //todo 验证是否存在这个时间表
         mailPlan.setArrSysScheduleId(String.join(",", mailPlanAddDto.getArrSysScheduleId()));
         mailPlan.setArrDIYScheduleId(String.join(",", mailPlanAddDto.getArrDIYScheduleId()));
         mailPlan.setToWho(mailPlanAddDto.getToWho());
@@ -56,9 +60,6 @@ public class MailPlanServiceImpl implements MailPlanService {
     @Override
     public void deleteMailPlan(String id) {
         MailPlan mailPlanById = getMailPlanById(id);
-        if (!isOwner(mailPlanById.getUserId()) && !StpUtil.hasRoleOr("admin", "root")) {
-            throw new AmailException(ResultCodeEnum.PERMISSION);
-        }
         mailPlanById.setIsDeleted(1);
         mailPlanRepository.save(mailPlanById);
     }
@@ -66,12 +67,7 @@ public class MailPlanServiceImpl implements MailPlanService {
     @Override
     public void batchDeleteMailPlan(String[] mailPlanIds) {
         List<MailPlan> mailPlanByIds = getMailPlanByIds(mailPlanIds);
-        mailPlanByIds.forEach(mailPlan -> {
-            if (!isOwner(mailPlan.getUserId()) && !StpUtil.hasRoleOr("admin", "root")) {
-                throw new AmailException(ResultCodeEnum.PERMISSION);
-            }
-            mailPlan.setIsDeleted(1);
-        });
+        mailPlanByIds.forEach(mailPlan -> mailPlan.setIsDeleted(1));
         mailPlanRepository.saveAll(mailPlanByIds);
     }
 
@@ -79,9 +75,6 @@ public class MailPlanServiceImpl implements MailPlanService {
     @Override
     public void updateMailPlan(MailPlanUpdateDto mailPlanUpdateDto) {
         MailPlan mailPlan = getMailPlanById(mailPlanUpdateDto.getId());
-        if (!isOwner(mailPlan.getUserId()) && !StpUtil.hasRoleOr("admin", "root")) {
-            throw new AmailException(ResultCodeEnum.PERMISSION);
-        }
         saveMailPlan(mailPlan, mailPlanUpdateDto);
     }
 
@@ -100,15 +93,8 @@ public class MailPlanServiceImpl implements MailPlanService {
 
     @Override
     public MailPlan getMailPlan(String id) {
-        Optional<MailPlan> byId = mailPlanRepository.findById(id);
-        if (byId.isPresent()) {
-            if (!isOwner(byId.get().getUserId()) && !StpUtil.hasRoleOr("admin", "root")) {
-                throw new AmailException(ResultCodeEnum.PERMISSION);
-            }
-            return byId.get();
-        } else {
-            throw new AmailException(ResultCodeEnum.FAIL, "查询失败");
-        }
+
+        return getMailPlanById(id);
     }
 
     @Override
@@ -128,11 +114,34 @@ public class MailPlanServiceImpl implements MailPlanService {
         return new PageImpl<>(mailPlanListPage.toList(), mailPlanListPage.getPageable(), mailPlanListPage.getTotalElements());
     }
 
+    @Override
+    public Map<String, String> getCronMapByMailPlanId(String planId) {
+        MailPlan mailPlanById = getMailPlanById(planId);
+
+//        String arrSysScheduleId = byId.get().getArrSysScheduleId();
+//        String[] sysSchedule = arrSysScheduleId.split(",");
+//        List<String> strings = Arrays.asList(sysSchedule);
+
+        String arrDIYScheduleId = mailPlanById.getArrDIYScheduleId();
+        String[] diyScheduleId = arrDIYScheduleId.split(",");
+        List<String> diyScheduleIdList = Arrays.asList(diyScheduleId);
+
+        List<MailCron> mailCronList = mailCronRepository.findAllById(diyScheduleIdList);
+
+        if (mailCronList.isEmpty()) {
+            throw new AmailException(ResultCodeEnum.FAIL, "没有该定时计划");
+        }
+        HashMap<String, String> cronMap = new HashMap<>();
+        mailCronList.forEach(mailCron -> cronMap.put(mailCron.getId(), mailCron.getCronExpr()));
+
+        return cronMap;
+    }
+
 
     private MailPlan getMailPlanById(String id) {
         Optional<MailPlan> byId = mailPlanRepository.findById(id);
         if (!byId.isPresent()) {
-            throw new AmailException(ResultCodeEnum.FAIL, "找不到该定时");
+            throw new AmailException(ResultCodeEnum.FAIL, "找不到该定时计划");
         }
         if (!isOwner(byId.get().getUserId()) && !StpUtil.hasRoleOr("admin", "root")) {
             throw new AmailException(ResultCodeEnum.PERMISSION);
@@ -142,16 +151,19 @@ public class MailPlanServiceImpl implements MailPlanService {
 
     private List<MailPlan> getMailPlanByIds(String[] ids) {
         List<MailPlan> allById = mailPlanRepository.findAllById(Arrays.asList(ids));
-        if (!allById.isEmpty()) {
-            return allById;
-        } else {
+        if (allById.isEmpty()) {
             throw new AmailException(ResultCodeEnum.FAIL, "找不到计划");
         }
+        allById.forEach(mailPlan -> {
+            if (!isOwner(mailPlan.getUserId()) && !StpUtil.hasRoleOr("admin", "root")) {
+                throw new AmailException(ResultCodeEnum.PERMISSION);
+            }
+        });
+        return allById;
     }
-
+    
     private boolean isOwner(String userId) {
         String loginId = (String) StpUtil.getLoginId();
         return loginId.equals(userId);
-
     }
 }

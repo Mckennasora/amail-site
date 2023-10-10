@@ -22,6 +22,7 @@ public class MailHistory {
     private String arrSysScheduleId;
     private String arrDIYScheduleId;
     private String sendByCronExpr;
+    private String sendByCronExprId;
     private String toWho;
     private String subject;
     private String mainBody;

@@ -7,6 +7,8 @@ import com.yyh.amailsite.mail.model.mailplan.dto.MailPlanUpdateDto;
 import com.yyh.amailsite.mail.model.mailplan.entity.MailPlan;
 import org.springframework.data.domain.Page;
 
+import java.util.Map;
+
 public interface MailPlanService {
     MailPlan addMailPlan(MailPlanAddDto mailPlanAddDto);
 
@@ -19,4 +21,6 @@ public interface MailPlanService {
     MailPlan getMailPlan(String id);
 
     Page<MailPlan> findMailPlanListPage(int page, int size, MailPlanListDto mailPlanListDto);
+
+    Map<String, String> getCronMapByMailPlanId(String planId);
 }
