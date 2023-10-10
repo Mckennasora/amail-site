@@ -13,6 +13,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>service-acl</module>
+        <module>service-job</module>
         <module>service-mail</module>
     </modules>
 
