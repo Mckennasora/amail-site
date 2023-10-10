@@ -1,8 +1,8 @@
 package com.yyh.amailsite.mail.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
-import com.yyh.aideasite.mq.constant.MqConst;
-import com.yyh.aideasite.mq.service.RabbitService;
+import com.yyh.amailsite.mq.constant.MqConst;
+import com.yyh.amailsite.mq.service.RabbitService;
 import com.yyh.amailsite.common.exception.AmailException;
 import com.yyh.amailsite.common.result.ResultCodeEnum;
 import com.yyh.amailsite.common.utils.PageRequestUtils;

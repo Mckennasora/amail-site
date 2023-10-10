@@ -1,4 +1,4 @@
-package com.yyh.aideasite.mq.config;
+package com.yyh.amailsite.mq.config;
 
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.connection.CorrelationData;

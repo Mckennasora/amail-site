@@ -1,4 +1,4 @@
-package com.yyh.aideasite.mq.constant;
+package com.yyh.amailsite.mq.constant;
 
 public class MqConst {
 

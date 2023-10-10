@@ -1,4 +1,4 @@
-package com.yyh.aideasite.mq.service;
+package com.yyh.amailsite.mq.service;
 
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.core.Message;

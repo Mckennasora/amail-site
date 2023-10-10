@@ -1,7 +1,7 @@
 package com.yyh.amailsite.job.receiver;
 
 import com.rabbitmq.client.Channel;
-import com.yyh.aideasite.mq.constant.MqConst;
+import com.yyh.amailsite.mq.constant.MqConst;
 import com.yyh.amailsite.job.service.MailPlanQuartzService;
 import org.quartz.SchedulerException;
 import org.springframework.amqp.core.Message;
