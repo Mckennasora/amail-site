@@ -6,6 +6,12 @@ spring:
       nacos:
         discovery:
           server-addr: localhost:9003
+  mail:
+    host: smtp.163.com
+    username: yyhsoraweb@163.com
+    password: MFRKFCVLWGWAUHSO
+    nickname: Amail.site
+    default-encoding: utf-8
   datasource:
     url: jdbc:mysql://127.0.0.1:3306/amail_mail?characterEncoding=UTF-8&useUnicode=true&useSSL=false&tinyInt1isBit=false&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai
     username: root
