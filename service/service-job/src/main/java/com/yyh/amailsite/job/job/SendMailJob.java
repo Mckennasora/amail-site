@@ -1,24 +1,34 @@
 package com.yyh.amailsite.job.job;
 
 import cn.hutool.core.date.DateTime;
+import com.yyh.amailsite.job.constant.JobConst;
+import com.yyh.amailsite.job.service.MailPlanQuartzService;
+import com.yyh.amailsite.mail.client.MailFeignClient;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Slf4j
 public class SendMailJob implements Job {
 
+    private MailFeignClient mailFeignClient;
+
+    @Autowired
+    public SendMailJob(MailFeignClient mailFeignClient){
+        this.mailFeignClient = mailFeignClient;
+    }
 
     @Override
     public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
-        //todo 根据mailPlanId远程调用邮件系统
+        String mailPlanId = (String)jobExecutionContext.getJobDetail().getJobDataMap().get(JobConst.MAIL_PLAN_ID_KEY);
+        String cronId = (String) jobExecutionContext.getTrigger().getJobDataMap().get(JobConst.MAIL_PLAN_CRON_ID_KEY);
+        String cronExpr = (String) jobExecutionContext.getTrigger().getJobDataMap().get(JobConst.MAIL_PLAN_CRON_EXPR_KEY);
+        mailFeignClient.sendMail(mailPlanId,cronId,cronExpr);
 
 
-
-
-        log.info("远程调用,触发时间:{}", new DateTime());
         JobKey jobKey = jobExecutionContext.getJobDetail().getKey();
         TriggerKey triggerKey = jobExecutionContext.getTrigger().getKey();
-        String mailPlanId = (String)jobExecutionContext.getJobDetail().getJobDataMap().get("mailPlanId");
+        log.info("远程调用,触发时间:{}", new DateTime());
         log.info("远程调用,触发的计划id:{}", jobKey);
         log.info("远程调用,触发的计划id:{}", mailPlanId);
         log.info("远程调用,触发时间id:{}", triggerKey);

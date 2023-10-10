@@ -17,8 +17,12 @@ import java.io.IOException;
 @Component
 public class MailPlanReceiver {
 
+    private final MailPlanQuartzService mailPlanQuartzService;
+
     @Autowired
-    private MailPlanQuartzService mailPlanQuartzService;
+    public MailPlanReceiver(MailPlanQuartzService mailPlanQuartzService){
+        this.mailPlanQuartzService = mailPlanQuartzService;
+    }
 
     /**
      * 激活计划
@@ -29,9 +33,9 @@ public class MailPlanReceiver {
      * @throws IOException
      */
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "队列名称", durable = "true"),
-            exchange = @Exchange(value = "交换机名称"),
-            key = {"这条信息的目的"}
+            value = @Queue(value = MqConst.QUEUE_MAIL_PLAN_ENABLE, durable = "true"),
+            exchange = @Exchange(value = MqConst.EXCHANGE_MAIL_PLAN_DIRECT),
+            key = {MqConst.ROUTING_MAIL_PLAN_ENABLE}
     ))
     public void enableMailPlan(String mailPlanId ,Message message, Channel channel) throws IOException, SchedulerException {
         if (null != mailPlanId) {
@@ -52,9 +56,9 @@ public class MailPlanReceiver {
      * @throws IOException
      */
     @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = MqConst.QUEUE_GOODS_LOWER, durable = "true"),
-            exchange = @Exchange(value = MqConst.EXCHANGE_GOODS_DIRECT),
-            key = {MqConst.ROUTING_GOODS_LOWER}
+            value = @Queue(value = MqConst.QUEUE_MAIL_PLAN_DISABLE, durable = "true"),
+            exchange = @Exchange(value = MqConst.EXCHANGE_MAIL_PLAN_DIRECT),
+            key = {MqConst.ROUTING_MAIL_PLAN_DISABLE}
     ))
     public void disableMailPlan(String mailPlanId, Message message, Channel channel) throws IOException, SchedulerException {
         if (null != mailPlanId) {

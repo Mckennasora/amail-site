@@ -1,6 +1,8 @@
 package com.yyh.amailsite.mail.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
+import com.yyh.aideasite.mq.constant.MqConst;
+import com.yyh.aideasite.mq.service.RabbitService;
 import com.yyh.amailsite.common.exception.AmailException;
 import com.yyh.amailsite.common.result.ResultCodeEnum;
 import com.yyh.amailsite.common.utils.PageRequestUtils;
@@ -30,12 +32,13 @@ public class MailPlanServiceImpl implements MailPlanService {
 
     private final MailCronRepository mailCronRepository;
 
-//    private final RabbitService rabbitService;
+    private final RabbitService rabbitService;
 
     @Autowired
-    public MailPlanServiceImpl(MailPlanRepository mailPlanRepository, MailCronRepository mailCronRepository) {
+    public MailPlanServiceImpl(MailPlanRepository mailPlanRepository, MailCronRepository mailCronRepository,RabbitService rabbitService) {
         this.mailPlanRepository = mailPlanRepository;
         this.mailCronRepository = mailCronRepository;
+        this.rabbitService = rabbitService;
     }
 
     @Override
@@ -148,7 +151,7 @@ public class MailPlanServiceImpl implements MailPlanService {
 
         mailPlanRepository.save(mailPlanById);
 
-//        rabbitService.sendMessage(MqConst.EXCHANGE_GOODS_DIRECT, MqConst.ROUTING_GOODS_UPPER, mailPlanId);
+        rabbitService.sendMessage(MqConst.EXCHANGE_MAIL_PLAN_DIRECT, MqConst.ROUTING_MAIL_PLAN_ENABLE, mailPlanId);
     }
 
     @Override
@@ -158,6 +161,7 @@ public class MailPlanServiceImpl implements MailPlanService {
 
         mailPlanRepository.save(mailPlanById);
 
+        rabbitService.sendMessage(MqConst.EXCHANGE_MAIL_PLAN_DIRECT, MqConst.ROUTING_MAIL_PLAN_DISABLE, mailPlanId);
 
     }
 

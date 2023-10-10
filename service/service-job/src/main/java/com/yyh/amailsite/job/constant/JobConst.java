@@ -6,6 +6,6 @@ public class JobConst {
     public static final String MAIL_PLAN_GROUP = "mailPlanGroup";
 
     public static final String MAIL_PLAN_CRON_ID_KEY = "mailPlanCronId";
-    public static final String MAIL_PLAN_CRON_KEY = "mailPlanCronId";
+    public static final String MAIL_PLAN_CRON_EXPR_KEY = "mailPlanCronExpr";
     public static final String MAIL_PLAN_CRON_GROUP = "mailPlanCronGroup";
 }

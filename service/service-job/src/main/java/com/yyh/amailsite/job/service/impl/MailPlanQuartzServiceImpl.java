@@ -5,12 +5,12 @@ import com.yyh.amailsite.common.result.ResultCodeEnum;
 import com.yyh.amailsite.job.constant.JobConst;
 import com.yyh.amailsite.job.job.SendMailJob;
 import com.yyh.amailsite.job.service.MailPlanQuartzService;
+import com.yyh.amailsite.mail.client.MailFeignClient;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -21,23 +21,25 @@ public class MailPlanQuartzServiceImpl implements MailPlanQuartzService {
 
     private static Scheduler scheduler;
 
-    public MailPlanQuartzServiceImpl() throws SchedulerException {
+    private MailFeignClient mailFeignClient;
+
+    public MailPlanQuartzServiceImpl(MailFeignClient mailFeignClient) throws SchedulerException {
         //todo 配置使用线程池 和 数据库
         scheduler = StdSchedulerFactory.getDefaultScheduler();
         scheduler.start();
+        this.mailFeignClient = mailFeignClient;
     }
 
 
     @Override
     public void enableMailPlan(String mailPlanId) {
-        //todo 远程查出cron表达式
-        Map<String, String> crons = new HashMap<>();
+        Map<String, String> crons = mailFeignClient.getCronMapByMailPlanId(mailPlanId);
 
         // 创建触发器队列，设置触发时间
         List<Trigger> triggerList = crons.entrySet().stream().map(entry -> (Trigger) TriggerBuilder.newTrigger()
                 .withIdentity(entry.getKey(), JobConst.MAIL_PLAN_CRON_GROUP)
                 .usingJobData(JobConst.MAIL_PLAN_CRON_ID_KEY, entry.getKey())
-                .usingJobData(JobConst.MAIL_PLAN_CRON_KEY, entry.getValue())
+                .usingJobData(JobConst.MAIL_PLAN_CRON_EXPR_KEY, entry.getValue())
                 .withSchedule(CronScheduleBuilder.cronSchedule(entry.getValue()))
                 .build()).collect(Collectors.toList());
 
@@ -64,7 +66,7 @@ public class MailPlanQuartzServiceImpl implements MailPlanQuartzService {
         JobKey jobKey = new JobKey(mailPlanId, JobConst.MAIL_PLAN_GROUP);
         if (!scheduler.deleteJob(jobKey)) {
             log.error("mailPlan启动失败:{}", mailPlanId);
-            throw new AmailException(ResultCodeEnum.SERVICE_ERROR,"mailPlan关闭失败");
+            throw new AmailException(ResultCodeEnum.SERVICE_ERROR, "mailPlan关闭失败");
         }
     }
 
