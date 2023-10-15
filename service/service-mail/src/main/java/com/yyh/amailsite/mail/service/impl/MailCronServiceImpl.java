@@ -1,6 +1,7 @@
 package com.yyh.amailsite.mail.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.core.util.StrUtil;
 import com.yyh.amailsite.common.exception.AmailException;
 import com.yyh.amailsite.common.result.ResultCodeEnum;
 import com.yyh.amailsite.common.utils.ShortUUIDGenerator;
@@ -82,8 +83,13 @@ public class MailCronServiceImpl implements MailCronService {
 
     private void saveMailCron(MailCron mailCron, MailCronUpdateDto mailCronUpdateDto) {
 
-        mailCron.setCronExpr(mailCronUpdateDto.getCronExpr());
-        mailCron.setRemarks(mailCronUpdateDto.getRemarks());
+        if(StrUtil.isBlank(mailCronUpdateDto.getCronExpr())){
+            mailCron.setCronExpr(mailCronUpdateDto.getCronExpr());
+        }
+        if(StrUtil.isBlank(mailCronUpdateDto.getRemarks())){
+            mailCron.setRemarks(mailCronUpdateDto.getRemarks());
+        }
+
         mailCronRepository.save(mailCron);
     }
 
