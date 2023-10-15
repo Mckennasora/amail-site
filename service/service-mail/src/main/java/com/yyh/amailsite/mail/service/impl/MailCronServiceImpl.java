@@ -2,6 +2,7 @@ package com.yyh.amailsite.mail.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.cron.CronUtil;
 import com.yyh.amailsite.common.exception.AmailException;
 import com.yyh.amailsite.common.result.ResultCodeEnum;
 import com.yyh.amailsite.common.utils.ShortUUIDGenerator;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.support.CronExpression;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -41,6 +43,7 @@ public class MailCronServiceImpl implements MailCronService {
         mailCron.setId(shortUUID);
         mailCron.setUserId((String) StpUtil.getLoginId());
 
+        verifyCronExpr(mailCronAddDto.getCronExpr());
         mailCron.setCronExpr(mailCronAddDto.getCronExpr());
         mailCron.setRemarks(mailCronAddDto.getRemarks());
 
@@ -83,10 +86,11 @@ public class MailCronServiceImpl implements MailCronService {
 
     private void saveMailCron(MailCron mailCron, MailCronUpdateDto mailCronUpdateDto) {
 
-        if(StrUtil.isBlank(mailCronUpdateDto.getCronExpr())){
+        if (!StrUtil.isBlank(mailCronUpdateDto.getCronExpr())) {
+            verifyCronExpr(mailCronUpdateDto.getCronExpr());
             mailCron.setCronExpr(mailCronUpdateDto.getCronExpr());
         }
-        if(StrUtil.isBlank(mailCronUpdateDto.getRemarks())){
+        if (!StrUtil.isBlank(mailCronUpdateDto.getRemarks())) {
             mailCron.setRemarks(mailCronUpdateDto.getRemarks());
         }
 
@@ -117,6 +121,13 @@ public class MailCronServiceImpl implements MailCronService {
 
         Page<MailCron> mailCronListPage = mailCronRepository.findAllByIsDeleted(mailCronListDto.getIsDeleted(), pageable);
         return new PageImpl<>(mailCronListPage.toList(), mailCronListPage.getPageable(), mailCronListPage.getTotalElements());
+    }
+
+    private void verifyCronExpr(String cronExpr) {
+        boolean isExpression = CronExpression.isValidExpression(cronExpr);
+        if (!isExpression) {
+            throw new AmailException(ResultCodeEnum.FAIL, "非法cron表达式");
+        }
     }
 
 

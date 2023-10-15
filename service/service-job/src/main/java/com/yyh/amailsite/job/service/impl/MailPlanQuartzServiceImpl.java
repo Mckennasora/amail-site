@@ -13,6 +13,7 @@ import org.quartz.*;
 import org.quartz.impl.StdSchedulerFactory;
 import org.springframework.amqp.core.Message;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.support.CronExpression;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -40,6 +41,8 @@ public class MailPlanQuartzServiceImpl implements MailPlanQuartzService {
     @Override
     public void enableMailPlan(String mailPlanId) throws SchedulerException {
         Map<String, String> crons = mailFeignClient.getCronMapByMailPlanId(mailPlanId);
+
+        crons.forEach((key, value) -> verifyCronExpr(value));
 
         JobKey jobKey = new JobKey(mailPlanId, JobConst.MAIL_PLAN_GROUP);
         if (scheduler.checkExists(jobKey) && !scheduler.deleteJob(jobKey)) {
@@ -90,6 +93,13 @@ public class MailPlanQuartzServiceImpl implements MailPlanQuartzService {
 
     private String getUniqueKey(String mailPlanId, String mailPlanCronId) {
         return StrUtil.join(".", mailPlanId, mailPlanCronId);
+    }
+
+    private void verifyCronExpr(String cronExpr) {
+        boolean isExpression = CronExpression.isValidExpression(cronExpr);
+        if (!isExpression) {
+            throw new AmailException(ResultCodeEnum.FAIL, "合法但无效的cron表达式");
+        }
     }
 
     public static void main(String[] args) throws SchedulerException, InterruptedException {

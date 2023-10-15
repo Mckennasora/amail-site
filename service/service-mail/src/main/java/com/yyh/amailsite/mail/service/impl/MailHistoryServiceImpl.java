@@ -12,10 +12,7 @@ import com.yyh.amailsite.mail.repo.MailHistoryRepository;
 import com.yyh.amailsite.mail.service.MailHistoryService;
 import com.yyh.amailsite.mail.util.MailHistorySpecifications;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
@@ -67,7 +64,9 @@ public class MailHistoryServiceImpl implements MailHistoryService {
             throw new AmailException(ResultCodeEnum.PERMISSION);
         }
 
-        Pageable pageable = PageRequest.of(page, limit);
+        Sort orders = Sort.by(Sort.Order.desc("createTime"));
+
+        Pageable pageable = PageRequest.of(page, limit, orders);
 
         Page<MailHistory> mailHistoryPage = mailHistoryRepository.findAll(
                 MailHistorySpecifications.withMailHistoryListDto(mailHistoryListDto), pageable);
@@ -77,7 +76,7 @@ public class MailHistoryServiceImpl implements MailHistoryService {
     }
 
     @Override
-    public MailHistoryVo saveMailHistoryByMailPlan(MailPlan mailPlan, String cronExpr,String cronExprId, int tryCount, boolean success) {
+    public MailHistoryVo saveMailHistoryByMailPlan(MailPlan mailPlan, String cronExpr, String cronExprId, int tryCount, boolean success) {
         MailHistory mailHistory = new MailHistory();
         mailHistory.setId(ShortUUIDGenerator.generateShortUUID());
         mailHistory.setUserId(mailPlan.getUserId());
