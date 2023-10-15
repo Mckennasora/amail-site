@@ -6,7 +6,7 @@ spring:
       discovery:
         server-addr: localhost:9003
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/amail_acl?characterEncoding=UTF-8&useUnicode=true&useSSL=false&tinyInt1isBit=false&zeroDateTimeBehavior=convertToNull&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://127.0.0.1:3306/amail_acl?characterEncoding=UTF-8&useUnicode=true&useSSL=false&tinyInt1isBit=false&zeroDateTimeBehavior=convertToNull&serverTimezone=UTC
     username: root
     password: 123456
     driver-class-name: com.mysql.cj.jdbc.Driver
