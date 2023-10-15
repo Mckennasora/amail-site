@@ -40,15 +40,17 @@ public class MailPlanReceiver {
             key = {MqConst.ROUTING_MAIL_PLAN_ENABLE}
     ))
     public void enableMailPlan(String mailPlanId, Message message, Channel channel) throws IOException, SchedulerException {
-        log.info("接受到信息:开始处理");
-        if (null != mailPlanId) {
-            mailPlanQuartzService.enableMailPlan(mailPlanId);
-        }
+        log.info("接受到信息:开始处理========================");
         /**
          * 第一个参数：表示收到的消息的标号
          * 第二个参数：如果为true表示可以签收多个消息
          */
         channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+
+        if (null != mailPlanId) {
+            mailPlanQuartzService.enableMailPlan(mailPlanId);
+        }
+        log.info("接受到信息:处理结束=========================");
 
     }
 
@@ -66,9 +68,11 @@ public class MailPlanReceiver {
             key = {MqConst.ROUTING_MAIL_PLAN_DISABLE}
     ))
     public void disableMailPlan(String mailPlanId, Message message, Channel channel) throws IOException, SchedulerException {
+        log.info("接受到信息:开始处理========================");
+        channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
         if (null != mailPlanId) {
             mailPlanQuartzService.disableMailPlan(mailPlanId);
         }
-        channel.basicAck(message.getMessageProperties().getDeliveryTag(), false);
+        log.info("接受到信息:处理结束=========================");
     }
 }

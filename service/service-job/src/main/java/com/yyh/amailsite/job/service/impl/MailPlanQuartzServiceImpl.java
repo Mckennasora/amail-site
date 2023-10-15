@@ -1,5 +1,6 @@
 package com.yyh.amailsite.job.service.impl;
 
+import cn.hutool.core.util.StrUtil;
 import com.rabbitmq.client.Channel;
 import com.yyh.amailsite.common.exception.AmailException;
 import com.yyh.amailsite.common.result.ResultCodeEnum;
@@ -37,21 +38,25 @@ public class MailPlanQuartzServiceImpl implements MailPlanQuartzService {
 
 
     @Override
-    public void enableMailPlan(String mailPlanId){
+    public void enableMailPlan(String mailPlanId) throws SchedulerException {
         Map<String, String> crons = mailFeignClient.getCronMapByMailPlanId(mailPlanId);
 
-        //todo 重新设计唯一标识 并提高容错
+        JobKey jobKey = new JobKey(mailPlanId, JobConst.MAIL_PLAN_GROUP);
+        if (scheduler.checkExists(jobKey) && !scheduler.deleteJob(jobKey)) {
+            log.error("mailPlan开启失败:{}", mailPlanId);
+            throw new AmailException(ResultCodeEnum.SERVICE_ERROR, "mailPlan开启失败");
+        }
 
         // 创建触发器队列，设置触发时间
         List<Trigger> triggerList = crons.entrySet().stream().map(entry -> {
 
             Trigger trigger = TriggerBuilder.newTrigger()
-                    .withIdentity(entry.getKey(), JobConst.MAIL_PLAN_CRON_GROUP)
+                    .withIdentity(getUniqueKey(mailPlanId, entry.getKey()), JobConst.MAIL_PLAN_CRON_GROUP)
                     .usingJobData(JobConst.MAIL_PLAN_CRON_ID_KEY, entry.getKey())
                     .usingJobData(JobConst.MAIL_PLAN_CRON_EXPR_KEY, entry.getValue())
                     .withSchedule(CronScheduleBuilder.cronSchedule(entry.getValue()))
                     .build();
-            log.info("创建trigger完成:{}, cronExpr:{}", trigger.getKey(),entry.getValue());
+            log.info("创建trigger完成:{}, cronExpr:{}", trigger.getKey(), entry.getValue());
             return trigger;
         }).collect(Collectors.toList());
 
@@ -81,6 +86,10 @@ public class MailPlanQuartzServiceImpl implements MailPlanQuartzService {
             log.error("mailPlan关闭失败:{}", mailPlanId);
             throw new AmailException(ResultCodeEnum.SERVICE_ERROR, "mailPlan关闭失败");
         }
+    }
+
+    private String getUniqueKey(String mailPlanId, String mailPlanCronId) {
+        return StrUtil.join(".", mailPlanId, mailPlanCronId);
     }
 
     public static void main(String[] args) throws SchedulerException, InterruptedException {
