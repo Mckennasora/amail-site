@@ -1,0 +1,46 @@
+version: '3'
+services:
+  service-acl:
+    container_name: service-acl
+    build:
+      context: ./service/service-acl
+      dockerfile: DockerFile
+    ports:
+      - "23103:23103"
+    networks:
+      - mynetwork
+    environment:
+      - TZ=CST  # 设置时区为 UTC
+
+  service-mail:
+    container_name: service-mail
+    build:
+      context: ./service/service-mail
+      dockerfile: DockerFile
+    ports:
+      - "23104:23104"
+    networks:
+      - mynetwork
+    depends_on:
+      - service-acl
+    environment:
+      - TZ=CST  # 设置时区为 UTC
+
+  service-job:
+    container_name: service-job
+    build:
+      context: ./service/service-job
+      dockerfile: DockerFile
+    ports:
+      - "23105:23105"
+    networks:
+      - mynetwork
+    depends_on:
+      - service-acl
+      - service-mail
+    environment:
+      - TZ=CST  # 设置时区为 UTC
+
+# 网络，不定义的话就是默认网络
+networks:
+  mynetwork:
